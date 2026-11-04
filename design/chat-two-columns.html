@@ -1,0 +1,1606 @@
+<div id="cc-mock">
+  <div class="viz-carousel" aria-label="对话窗口组织方案">
+    <section data-variant="Two lanes" aria-label="左标签 + 右正文">
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="hint">左栏常驻并自动跟随 · 右侧单轴滚动</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="split">
+          <div class="lane">
+            <div class="lane-hd">我说的 <b>20</b> 条 · 946 字</div>
+            <div class="tablist" role="tablist" aria-label="我的提问">
+        <button type="button" class="t" data-turn="2" role="tab" aria-selected="false">
+          <span class="tno">2</span>
+          <span class="ttx">给我讲一下现在的switch-net-rl</span>
+          <span class="tmeta">21 字 · 01:04</span>
+        </button>
+        <button type="button" class="t" data-turn="19" role="tab" aria-selected="false">
+          <span class="tno">19</span>
+          <span class="ttx">&gt; 它只能根据当前盘口、gap、订单流和持仓方向重新判断。训练奖励虽然会在卖出时体现损失，但策略状态里缺少 entry price，跨多个 tick 归因比较困难。
+&gt;
+&gt; <code>margin=0.01</code> 也只看当前 logit 的改善，不会检查：
+&gt;
+&gt; - 这一笔实际会损失多少；
+&gt; - 要跨多宽的 bid-ask spread；
+&gt; - 新方向是否只是刚刚涨上去；
+&gt; - 距离上一次换边过了多久</span>
+          <span class="tmeta">200 字 · 09:59</span>
+        </button>
+        <button type="button" class="t" data-turn="34" role="tab" aria-selected="false">
+          <span class="tno">34</span>
+          <span class="ttx">ok，那继续吧</span>
+          <span class="tmeta">7 字 · 14:01</span>
+        </button>
+        <button type="button" class="t" data-turn="49" role="tab" aria-selected="false">
+          <span class="tno">49</span>
+          <span class="ttx">当然最好的情况是每个seed的表现都符合要求，所以我们应该仔细看一下27D的 switch-net 在 seed 0 和 seed 2 时的表现有什么区别</span>
+          <span class="tmeta">77 字 · 16:59</span>
+        </button>
+        <button type="button" class="t" data-turn="65" role="tab" aria-selected="false">
+          <span class="tno">65</span>
+          <span class="ttx">但我们现在是在训练 switch-net，这只是 switch-net-rl 的 warm-up</span>
+          <span class="tmeta">48 字 · 22:58</span>
+        </button>
+        <button type="button" class="t" data-turn="80" role="tab" aria-selected="false">
+          <span class="tno">80</span>
+          <span class="ttx">那把warm-start的 hold-net baseline 放到影子盘上去看看实盘效果吧，不耽误我们继续优化PPO</span>
+          <span class="tmeta">59 字 · 01:34</span>
+        </button>
+        <button type="button" class="t" data-turn="98" role="tab" aria-selected="false">
+          <span class="tno">98</span>
+          <span class="ttx">每15分钟检查一下运行情况</span>
+          <span class="tmeta">13 字 · 09:45</span>
+        </button>
+        <button type="button" class="t" data-turn="118" role="tab" aria-selected="false">
+          <span class="tno">118</span>
+          <span class="ttx">PPO 怎么使用训练集训练的</span>
+          <span class="tmeta">14 字 · 19:05</span>
+        </button>
+        <button type="button" class="t" data-turn="135" role="tab" aria-selected="false">
+          <span class="tno">135</span>
+          <span class="ttx">ok，把这几个实验加入 plan。不过这次又过了一天多，数据会怎么使用？</span>
+          <span class="tmeta">36 字 · 22:57</span>
+        </button>
+        <button type="button" class="t" data-turn="192" role="tab" aria-selected="false">
+          <span class="tno">192</span>
+          <span class="ttx">总结一下Ralph loop的成果</span>
+          <span class="tmeta">17 字 · 11:01</span>
+        </button>
+        <button type="button" class="t" data-turn="213" role="tab" aria-selected="false">
+          <span class="tno">213</span>
+          <span class="ttx">我同意先回到 supervised Q-value，单独研究 side-vs-Flat 的费用后美元价值。先构建一个更加平衡的warm-start，保证PPO不会向一个方向坍缩</span>
+          <span class="tmeta">88 字 · 14:37</span>
+        </button>
+        <button type="button" class="t" data-turn="228" role="tab" aria-selected="false">
+          <span class="tno">228</span>
+          <span class="ttx">这样是不是更容易过拟合了</span>
+          <span class="tmeta">12 字 · 16:21</span>
+        </button>
+        <button type="button" class="t" data-turn="253" role="tab" aria-selected="false">
+          <span class="tno">253</span>
+          <span class="ttx">还有没有应该固定为超參的参数？</span>
+          <span class="tmeta">15 字 · 00:48</span>
+        </button>
+        <button type="button" class="t" data-turn="269" role="tab" aria-selected="false">
+          <span class="tno">269</span>
+          <span class="ttx">为什么 hold-net-iter6-coverage-gate-2026-10-28 在 10-30 号的极端行情里反而表现的不错</span>
+          <span class="tmeta">66 字 · 11:50</span>
+        </button>
+        <button type="button" class="t" data-turn="284" role="tab" aria-selected="false">
+          <span class="tno">284</span>
+          <span class="ttx">有什么可以写进plan的TODO</span>
+          <span class="tmeta">16 字 · 12:36</span>
+        </button>
+        <button type="button" class="t" data-turn="305" role="tab" aria-selected="false">
+          <span class="tno">305</span>
+          <span class="ttx">我是说这次的ralph loop的结果，为什么会有switch-net的相关内容？</span>
+          <span class="tmeta">41 字 · 18:22</span>
+        </button>
+        <button type="button" class="t" data-turn="333" role="tab" aria-selected="false">
+          <span class="tno">333</span>
+          <span class="ttx">旧 reference bug 修完了之后不能用同样的数据重新生成基线，重新训练和评估吗？</span>
+          <span class="tmeta">45 字 · 00:40</span>
+        </button>
+        <button type="button" class="t" data-turn="351" role="tab" aria-selected="false">
+          <span class="tno">351</span>
+          <span class="ttx">ok，这个两个模型可以作为baseline了。再重新说一下我们需要重复哪些实验</span>
+          <span class="tmeta">39 字 · 01:28</span>
+        </button>
+        <button type="button" class="t" data-turn="371" role="tab" aria-selected="false">
+          <span class="tno">371</span>
+          <span class="ttx">为什么 full-C gate/gate+veto 的 2x fee 比 supervised baseline 更好？</span>
+          <span class="tmeta">60 字 · 10:48</span>
+        </button>
+        <button type="button" class="t" data-turn="386" role="tab" aria-selected="false">
+          <span class="tno">386</span>
+          <span class="ttx">expanding supervised 0+3 + entry veto 有没有受到今天修的几个bug的影响，是不是一个真的baseline？</span>
+          <span class="tmeta">72 字 · 19:37</span>
+        </button>
+            </div>
+          </div>
+          <div class="pane">
+        <section class="turn" data-turn="2">
+          <div class="turn-hd"><span>第 2 轮 · 5.3 万字 · 4 步</span><span>10-27 01:04</span></div>
+          <div class="txt">我先从仓库里找到 <code>switch-net-rl</code> 的实现、配置和最近提交，再按实际代码讲它现在怎么运行、各模块怎么配合，以及有哪些限制。
+
+仓库里有一整条 switch-net 研究线，并且最近刚把 Ralph 分支合进了主线。我会重点核对三处：线上导出策略、训练器的 PPO 语义，以及最新研究结论是否已经进入实际策略。
+
+Let&#x27;s read strategy remaining around SwitchNetStrategy.
+
+两点值得记住：
+
+1. <strong>全知上限很高，但这不代表可执行。</strong> 上限是「每个 tick 都能看到未来再换手」的每份价值总和；它说明反向的时机确实存在，但当前特征还预见不到，而且每换一次要付两份吃单手续费。
+2. <strong>没有任何窗口限制只会更糟。</strong> 越早放开，模型越早开始猜方向，换手越多、手续费越多。120 秒那一档最好，但仍然打不过买定离手。
+
+早期用「每份」记账时这一版看起来是正收益（+$106）；换成和线上一致的手数和手续费之后结论翻面，说明原来的正数来自把每一秒的小价差都当成能成交，实际下不了那么小的单。
+
+仓库不再附带旧 switch 权重。旧权重和当前特征不兼容，需要重新训练；新模型由
+正式候选流程产出并装进模型目录：
+
+实盘里 <code>Position</code> 会跟着 <code>data/state.json</code> 存，重启后接着上一个窗口的持仓，不会重复建仓。买入仍然受 <code>MAX_USD</code>、<code>MAX_SHARES</code>、<code>MIN_SHARES</code> 和模型自己的 <code>MAX_ASK</code> 限制，卖出按持仓份额、吃买一，交易所拒掉名义金额不足 1 美元的单。
+
+<strong>暂时不进自动重训。</strong> 它曾经和另外几套一起跑滚动折，但两个原因先摘出来：
+
+1. 它要的订单流字段刚开始攒（见下面一节），真正有样本还要几天；</div>
+        </section>
+        <section class="turn" data-turn="19">
+          <div class="turn-hd"><span>第 19 轮 · 2,064 字 · 1 步</span><span>10-27 09:59</span></div>
+          <div class="txt">这个方向应该按“先补状态，再改决策，再调执行”的顺序，不要先继续扫 <code>margin</code>。现有研究已经说明，单独改动态 margin、cooldown、sizing 或限价执行都没有稳定收益。
+
+### 1. 先补全策略状态，这是最高优先级
+
+当前 PPO 是前馈 MLP，没有历史记忆。若 observation 不包含成本基础，它就不是完整的决策状态。
+
+建议增加这些与当前持仓绑定的特征：
+
+- <code>avg_entry_price</code>：含手续费后的加权平均买入成本。
+- <code>unrealized_pnl_bps</code>：<code>(当前可卖 bid - avg_entry_price) / avg_entry_price</code>。
+- <code>liquidation_value_usd</code>：当前持仓按 bid 卖出后真正能拿回多少钱。
+- <code>holding_seconds</code>：当前方向已经持有多久。
+- <code>seconds_since_last_switch</code>：距上次换仓多少秒。
+- <code>switches_this_window</code>：本窗口已经换过几次。
+- <code>round_trip_count</code>：已经完成的买回卖出来回次数。
+- <code>cumulative_cash_usd</code>：本窗口已经实现的现金。
+
+这样模型才能区分：
+
+刚以 0.01 买入 Down，持有 1 秒
+
+和：
+
+以 0.72 买入 Down，已经浮亏 98%，持有 30 秒
+
+当前两者在某些盘口状态下可能得到很接近的 observation。
+
+这一项不改变 reward、动作空间或 margin，适合作为一个单独实验。成功标准应是：换手数、手续费、最大回撤和 &lt;15 秒反向切换次数下降，同时跨 seed、跨日期 PnL 不恶化。
+
+### 2. 把“logit 改善”改成“美元改善”
+
+当前：
+
+数值没有直接的美元含义。
+</div>
+        </section>
+        <section class="turn" data-turn="34">
+          <div class="turn-hd"><span>第 34 轮 · 5,976 字 · 4 步</span><span>10-27 14:01</span></div>
+          <div class="txt">我继续做方向可预测性审计，暂不再训练 value network。先用相同时间段比较三类信息：单纯 gap、盘口隐含概率、以及加入订单流/路径特征后的模型，按剩余时间桶看样本外 AUC、Brier 和准确率。只有前者之外仍有稳定增量，才值得回到 switch-net-v2/rl-v2。
+
+Feature sets by name:
+
+- Could also bucket <code>10-30</code>, etc.
+
+Let&#x27;s implement.
+
+&quot;&quot;&quot;一条 tick / 一个窗口 → 字段字典：两侧盘口 + 30 秒路径量。与模型无关。
+
+这份字段表是&quot;完整样本&quot;的底料（见 <code>dataset.FullSample</code>）：谁算自己的特征都从这里取，
+模型之间不共享特征、也不互相 import——以前这份构造住在 <code>models/switch_net/rows.py</code>，
+而认赔那条路反过来 import 它，所以搬到这里。
+
+阈值）和手数计算的量留 float64，只喂网络的量用 float32。<code>ENTRY_PATH</code> 另外保存
+决策当时的 30 秒路径量；历史日志缺 TWAP 时，路径计算会带 <code>twap_is_proxy=1</code> 的代理值。
+&quot;&quot;&quot;
+
+from __future__ import annotations
+
+from collections import deque
+
+&quot;&quot;&quot;日志里的数字：空值和不认的写法都当没有（两侧各留一份，模型侧就是这一份）。&quot;&quot;&quot;
+return None
+try:
+return float(value)
+except (TypeError, ValueError):
+return None
+
+return None
+
+&quot;&quot;&quot;按记录顺序给出特征（不含 held）。30 秒路径用更早的记录算，和线上一致。&quot;&quot;&quot;</div>
+        </section>
+        <section class="turn" data-turn="49">
+          <div class="turn-hd"><span>第 49 轮 · 3,591 字 · 4 步</span><span>10-27 16:59</span></div>
+          <div class="txt">我会做行为级对比，不只比较总 PnL：重训 27D 的 seed 0/2，按日、时间桶、ask 桶、首笔方向、换手次数和共同窗口拆分，找出两个 seed 分别依赖哪类窗口以及为何在不同测试日反向。
+
+&quot;&quot;&quot;一笔入场怎么算、一组窗口的账怎么记：和线上同一套下单判断与手续费。
+
+两层：
+
+- <strong>原子件</strong>：手续费和盈亏，以及&quot;这一秒该不该买、买得起多少&quot;这一整段——闸门和金额都走
+谁都不该再自己写一套——影子盘和回测对不上过（见 README「口径」一节）。
+- <strong><code>ScoreCard</code></strong>：一组窗口的账。逐窗明细（窗口 → 赚了多少）是原生字段，配对比较、跨折
+相加、置信区间都从它出发，不用再靠一个 <code>pnls</code> 附件传来传去。
+&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass, field
+
+&quot;&quot;&quot;一行账：成交、胜率、盈亏。没成交时胜率写 n/a。
+
+规则类候选的手工报表（exit-net / stale-ask）共用这一行——它们的账形状一样。
+&quot;&quot;&quot;
+
+&quot;&quot;&quot;和交易层一样按卖一数量、金额和份额上限截断——同一个 <code>strategy.plan_order</code>。
+
+不够最小手数、不满 1 美元、或卖一挂不出这么多就放弃。<code>probability</code> 为空是规则类候选
+（没有概率，金额按固定值）。
+&quot;&quot;&quot;
+return None if plan.quote is None else plan.quote.shares
+
+&quot;&quot;&quot;这一笔的扣费盈亏：赢了拿每份 1 美元的兑付，输了亏掉买入的钱。&quot;&quot;&quot;
+if won:
+return net_win_usdc(shares, ask)</div>
+        </section>
+        <section class="turn" data-turn="65">
+          <div class="turn-hd"><span>第 65 轮 · 1,147 字 · 1 步</span><span>10-27 22:58</span></div>
+          <div class="txt">Let&#x27;s formulate answer concise, no repetitive.
+
+对，这个区分很重要。
+
+职责应该分开：
+
+| 组件 | 负责什么 |
+| <code>switch-net-v2</code> | 学习正常市场状态下的入场、换边、持仓行为，为 PPO actor 提供初始权重 |
+| 线上策略 | 严格执行 RL 训练时的 mask；不能额外加事后 fallback |
+
+因此：
+
+&gt; “每个窗口必须成交”是 RL 环境的约束，不是 switch-net-v2 自身必须满足的最终目标。
+
+但 warm-up 和 RL 环境也不能完全脱节。如果 RL 在 deadline 后会禁止 flat、强制选 Up/Down，而 warm-up actor 完全没见过这种状态，PPO 就要从零学习一个很少出现但重要的末端动作。现有强制补单实验说明，未约束的 warm-up 在这一状态下几乎随机，胜率只有 1%–6%。
+
+更合理的 warm-up 设计是：
+
+正常状态：
+继续学习 flat/Up/Down 的美元 action value
+
+deadline 且尚未成交：
+flat 被 mask
+额外监督 Up/Down 的相对优势
+
+这不是把整个 switch-net-v2 训练成“必须交易模型”，而是在同一个 actor 上加一个<strong>terminal auxiliary objective</strong>：
+
++ λ × terminal_side_loss
+
+PPO 正式训练时：
+
+- 正常阶段使用普通 action mask；
+- 进入强制阶段后 mask flat；
+- 如果要求持有到结算，再 mask 后续换边动作；
+- reward 仍来自真实美元 PnL；
+- coverage 和不可成交窗口作为单独指标或约束。
+</div>
+        </section>
+        <section class="turn" data-turn="80">
+          <div class="turn-hd"><span>第 80 轮 · 2.1 万字 · 8 步</span><span>10-28 01:34</span></div>
+          <div class="txt">我先核对影子盘的候选发现、部署目录和策略加载路径。<code>hold-net</code> 目前没注册，若要进入影子盘，可能需要一条显式的 research-only 装载路径；我会优先复用现有机制，避免把它加入默认注册表或实盘候选。
+
+src/poly_btc_5m_99/deployment.py:240
+
+&quot;&quot;&quot;一个模型就是一个目录，目录里放权重、它自己的设置、以及它是怎么训出来的。
+
+model.json      权重（神经网络、逻辑回归、switch-net 才有；规则类候选没有）
+settings.yaml   模型名字、策略名，以及这个模型该用的入场窗和下注限制
+下注限制的 <code>sizing</code> 段是门槛 + 金额曲线（见 sizing.Sizing）
+stale-ask 和 exit-net 的 stale-bid 候选另有 rule 段，阈值就是模型
+provenance.json 这一份是哪版代码、哪份特征口径、哪几天训出来的
+
+这样&quot;上线&quot;就只是把链接指过去：模型带什么限制，线上就用什么限制。重训、
+手工部署和回滚都不再改全局配置。
+
+三份文件里只有前两份是线上要用到的：provenance.json 是给人和脚本看的账，读坏了不影响
+交易（<code>load_provenance</code> 读不出来就给 None），内容由 <code>models.common.provenance</code> 生成。
+&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import yaml
+
+# 依赖别的策略的策略（exit-net 用 neural-net 入场）把入场权重放在自己目录里用这个文件名。
+
+class ModelSpec:
+&quot;&quot;&quot;一个模型的设置。名字和策略之外，都是它自己该用的交易口径。&quot;&quot;&quot;
+
+name: str
+strategy: str</div>
+        </section>
+        <section class="turn" data-turn="98">
+          <div class="turn-hd"><span>第 98 轮 · 5,841 字 · 3 步</span><span>10-28 09:45</span></div>
+          <div class="txt">我会先检查是否已有针对这个 Ralph loop 的定时任务，避免重复创建；随后建立一个每 15 分钟的本地 heartbeat，只在循环停止、失败、出现 <code>STOP</code> 或明显状态变化时提醒，并顺带确认当前运行状态。
+
+name = &quot;影子盘每日盈亏图（每天 00:20 北京时间）&quot;
+prompt = &quot;每天刷新「影子盘每日盈亏与当日胜率」这张图：把服务器上影子盘的模拟成交数据同步到本地，按模型按天重算盈亏和胜率，更新这张 canvas 图并把它发给我。\n\n背景：这张图是一个 HTML 片段，在 /Users/luyun/.codex/visualizations/2026/10/16/01a1441d-d8ac-72a2-a343-7482872c4b17/shadow-daily-pnl.html，里面有两个 canvas：图一是每个候选每天的盈亏折线（纵轴美元，最后一天可能只是当天的半截），图二是「最近一个完整日」的胜率条形图（灰线是各候选自己整段生命周期的胜率）。数据是 prediction2 上各候选自己的账 data/shadow/&lt;候选名&gt;/windows.jsonl（一行一个 5 分钟窗口，字段有 start_ts / pnl / legs / winner）。\n\n每轮要做的事：\n\n1. 先同步数据：在仓库根目录跑 rsync -a --partial -z prediction2:/home/ec2-user/polymarket-btc-5min-last-minute/data/shadow/ data/shadow/（需要联网，被沙箱拦下就申请一次批准）。同步失败就说清楚、这一轮不要重画，别拿旧数据当新的发。\n2. 重算：遍历 data/shadow/ 下的候选目录（跳过 retired/ 和 votes.jsonl），只用 legs </div>
+        </section>
+        <section class="turn" data-turn="118">
+          <div class="turn-hd"><span>第 118 轮 · 2,294 字 · 2 步</span><span>10-28 19:05</span></div>
+          <div class="txt">我会按实际训练链路讲：数据如何切分、一个窗口怎样变成 PPO episode、动作和奖励怎么产生、rollout/GAE/PPO 更新如何消费训练集，以及验证集只在哪一步参与。重点会区分完整训练数据和当前 Ralph 冻结子集。
+
+&quot;&quot;&quot;Research-only PPO trainer for hold-net-rl.
+
+from __future__ import annotations
+
+model: object
+
+&quot;activation_fn&quot;: nn.ReLU,
+
+from __future__ import annotations
+
+import numpy as np
+
+candidate.model,
+
+Need answer direct.
+
+以当前 <code>hold-net-rl</code> 为例，PPO 的训练集不是直接喂“标签”做监督学习，而是把训练窗口变成逐个 tick 的美元盈亏环境，再用 PPO 学习动作。
+
+### 1. 数据怎么切
+
+有两套常见口径：
+
+- 完整研究数据：train <code>3,448</code> 窗、validation <code>576</code> 窗、test <code>226</code> 窗。
+- 当前 Ralph 冻结子集：train <code>144</code> 窗、validation <code>22</code> 窗。iteration 6/10 都是在后者上训练的。
+
+训练只使用 train 段。validation 不参与梯度更新，只用于：
+
+- 每隔几轮评估 checkpoint；
+- 选择最终模型；
+- 记录 PnL 轨迹。
+
+test/confirm 不参与训练。
+
+### 2. 一个窗口怎么变成 episode
+
+一个 5 分钟市场窗口就是一条 episode：
+
+窗口开始
+→ 逐 tick 观察盘口、BTC gap、订单流和当前持仓
+→ 策略选择目标：Flat / Up / Down</div>
+        </section>
+        <section class="turn" data-turn="135">
+          <div class="turn-hd"><span>第 135 轮 · 1.8 万字 · 3 步</span><span>10-29 22:57</span></div>
+          <div class="txt">我会把这轮限制为“新轴，不追加重跑旧搜索”，并先按时间顺序重新定义数据用途：已经用于选模型和 Ralph 调参的 10/24–10/27 不再算新鲜测试集；10/28 之后的 shadow 数据只能先用于 forward audit。若在它上面调 calibration/margin，它就会转为 validation，必须再从 10/29 之后锁一份新的未触碰 test。先检查当前数据边界和 Plan 结构。
+
+Need decide exact experiment design and data protocol. User asks &quot;ok，把这几个实验加入 plan。不过这次又过了一天多，数据会怎么使用？&quot;
+
+# 假设队列
+
+状态：<code>[ ]</code> 待做 · <code>[~]</code> 进行中 · <code>[x]</code> 证实 · <code>[-]</code> 否定。
+
+- [x] <strong>基线</strong>：冻结当前 <code>hold-net-rl</code>、34D 特征、terminal rules 和 warm-start，
+跑 seed 0 screen 与 3-seed 复现，建立本轮循环的 PPO 对比基线。
+Axis token：<code>baseline</code>。
+改哪里：不改代码，只运行 <code>eval.sh screen</code>。
+成功判据：得到有效验证集 PnL、覆盖率、2x 费用和 PPO improved 标志。
+结果：修正后的 fold 1 baseline 为 PnL <code>-$19.29</code>、9 窗、覆盖率 <code>40.9%</code>、
+
+- [-] <strong>warm-start 行为保持</strong>：只调整 PPO 与 warm policy 的 KL/行为克隆约束，使
+PPO 不再通过大面积 flat 坍塌来降低训练奖励。
+Axis token：<code>warm-policy-kl</code>。</div>
+        </section>
+        <section class="turn" data-turn="192">
+          <div class="turn-hd"><span>第 192 轮 · 7,309 字 · 3 步</span><span>10-30 11:01</span></div>
+          <div class="txt">我先从 <code>RESULTS.md</code>、<code>STATE.md</code>、最终 metrics 和提交历史提取权威结果，区分“研究结论、最好模型、Ralph 产物”与“是否可部署”。
+
+# 逐轮结果
+
+| 0（修正切折后重跑） | 冻结基线 | 无代码改动 | -$19.29 | 9 | 40.9% | -$21.15 | true | 未保留：成交少于 10，2x fee 为负；复现与负对照按协议跳过 |
+| 6 | checkpoint 覆盖率门控 | 仅让覆盖率达到 40% 的 checkpoint 参与最差日/合计 PnL 排序 | -$0.50 | 10 | 45.5% | -$2.89 | true | 未保留：2x fee 为负；复现与负对照按协议跳过；源码已回滚 |
+| 11 | Flat 方向特征交换诊断 | 冻结 warm 与 52,800 checkpoint，交换六组 Flat Up/Down 市场特征 | -$19.29 | 9 | 40.9% | -$21.15 | true | 诊断轴证实：2,199 个状态均响应，平均绝对 logit 变化 <code>0.02891</code>；仅 43.2% 翻号，交换后均值仍为负；未保留，复现与负对照按协议跳过 |
+| 14 | coverage 缺口归因 | 只读重放 13 个无覆盖窗口，记录 deadline 前后 ask、可成交性和 actor logits | -$19.29 | 9 | 40.9% | -$21.15 | true | 诊断轴证实：13/13 缺口是策略在可执行盘口上停留 Flat；910 个可执行状态中 0 次选可成交侧，两日均复现；未保留，复现与负对照按协议跳过；下一轴 <code>executable-side-preference</code> |</div>
+        </section>
+        <section class="turn" data-turn="213">
+          <div class="turn-hd"><span>第 213 轮 · 3,506 字 · 3 步</span><span>10-30 14:37</span></div>
+          <div class="txt">我会先审计现有 supervised Q 训练和候选模型的方向分布，再实现一个“镜像盘口对称”的 warm-start 训练方案。评价会同时看费用后 PnL、Up/Down 单边率、镜像响应误差和 seed 稳定性，不会只优化总收益。
+
+## codex/ralph-hold-net
+
+&quot;&quot;&quot;Fit the independent hold-net value network.&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import numpy as np
+# torch 只在训练器加载 fit 时出现；hold-net 的运行期 model.py 保持纯 numpy。
+import torch
+
+return HOLD_SUPERVISED_FEATURES
+return HOLD_RL_FEATURES
+
+from __future__ import annotations
+
+import numpy as np
+
+return (
+
+Train one research-only hold-net fold without registration
+
+上一轮 iteration 45 已否定 ±2 advantage clipping：裁剪确实生效，4.55% 的 advantage 越界，但最好 PPO checkpoint 从 ±3 的 -$8.48 退到 -$38.62；Next-Axis 为 actor-critic-gradient-attribution。
+本轮目标是固定 seed-3 warm、数据、reward、gate、features、PPO seed、超参与 checkpoint 规则，只读分解 actor 和 critic 对共享特征层的梯度贡献，判断 value loss 是否提前污染 actor。</div>
+        </section>
+        <section class="turn" data-turn="228">
+          <div class="turn-hd"><span>第 228 轮 · 1,044 字 · 1 步</span><span>10-30 16:21</span></div>
+          <div class="txt">Let&#x27;s generate final in Chinese not too verbose.
+
+是，<strong>直接拆成两个完整 residual 网络会明显增加过拟合风险</strong>。
+
+现在已经有两个警告：
+
+- 完整 576 窗里，residual 相比 warm 是 <code>111</code> 窗改善、<code>135</code> 窗恶化、<code>330</code> 窗不变。
+- 聚合收益高度依赖少数大盈利窗口：最大单窗相对改善约 <code>+$33.67</code>，最大单窗恶化约 <code>-$84.24</code>。
+- 10/26 的 2x-fee PnL 仍是 <code>-$39.86</code>，跨日不稳定。
+
+拆开后如果 entry gate 和 position gate 都自由训练，会出现：
+
+1. 参数和有效自由度增加，但输入信息没有增加。
+2. 两个 gate 仍只优化同一个 episode PnL，容易互相补偿，归因依旧不清楚。
+3. 在 576 个高度相关的 5 分钟窗口上，可能分别拟合 10/25 和 10/26 的不同行情。
+4. 当前联合 residual 已经通过 <code>held_flat/held_up/held_down</code> 和仓位特征隐式区分了 Flat 与持仓状态；显式拆开不一定带来新表达能力。
+
+因此不建议直接上两个 MLP。
+
+更合理的顺序是先做<strong>冻结模型的反事实消融</strong>：
+
+- 保留 residual 的退出/持有控制，但 Flat 时强制执行 base actor，取消 entry veto。
+- 保留 residual 的入场控制，但持仓后强制跟随 base actor，取消 position gate。
+- 两者都与现有联合 residual 对比完整 576 窗。
+
+这一步不训练新参数，能先回答拆分到底有没有上限收益，也几乎不增加过拟合风险。
+
+如果消融仍然有效，再训练时应采用更受约束的结构：
+</div>
+        </section>
+        <section class="turn" data-turn="253">
+          <div class="turn-hd"><span>第 253 轮 · 1,512 字 · 3 步</span><span>10-31 00:48</span></div>
+          <div class="txt">真正需要收紧的不是“把所有数字都拿来扫”，而是把会影响 action mask、标签、episode 时域和回放结果的参数纳入统一的 model contract。现在我把当前硬编码与已记录超参分开，避免把风险/仓位参数和模型行为参数混在一起。
+
+&quot;&quot;&quot;Independent feature and action contract for hold-net.&quot;&quot;&quot;
+
+from __future__ import annotations
+
+from __future__ import annotations
+
+super().__init__(*args, **kwargs)
+
+发现一个额外的实现风险：回放层仍把窗口上界写死为 120 秒，而训练和线上使用 <code>max_left</code>。如果以后正式把 <code>max_left</code> 做成 30/60 等超参，这条回放路径会先把评估契约破坏掉。
+
+for index, field in enumerate(window.fields)
+]
+
+for index in ticks:
+
+Let&#x27;s construct answer:
+Opening: &quot;有。建议把参数分三类，不要全塞进一个 grid.&quot;
+
+3. Experimental protocol:
+
+有，而且要先区分三类参数：<strong>模型行为超参、仓位/风险口径、实验协议</strong>。它们都应被记录和冻结，但不应该全部塞进同一个参数网格联合搜索。
+
+## 最应该补齐的模型行为超参
+
+这些参数会改变标签、action mask、episode 路径或回放结果。训练、评分、回放、线上必须使用同一份值：
+
+| 参数 | 当前值 | 当前状态 |
+
+其中优先级最高的是：
+
+1. <strong><code>deadline_seconds</code></strong>：直接决定 terminal-lock 边界，必须继续作为独立超参冻结。</div>
+        </section>
+        <section class="turn" data-turn="269">
+          <div class="turn-hd"><span>第 269 轮 · 1,558 字 · 3 步</span><span>11-03 11:50</span></div>
+          <div class="txt">先把“不错”定义清楚：<strong>iter6 在 10-30 不是赚钱，只是比 baseline 少亏很多。</strong>
+
+- iter6：<code>-$81.38</code>，165 个交易窗口，148 个结算
+- baseline：<code>-$287.32</code>，192 个交易窗口
+- iter6 自己其他日子：10/29 <code>-$77.73</code>、10/31 <code>-$15.48</code>、11/01 <code>-$181.98</code>
+
+所以 10-30 对 iter6 来说并不是“表现好”，只是<strong>没有像 baseline 那样被高价换手打穿</strong>。
+
+## 为什么它少亏
+
+### 1. 它的 Down 偏差刚好撞上了 crash 腿
+
+iter6 首笔入场 <code>162 Down / 3 Up</code>，最终持仓 <code>225 Down / 6 Up</code>。10-30 是日线级别的下跌日，部分 5 分钟窗口确实结算 Down。
+
+它大部分时间其实是错的：最终 Down 的窗口里，110 个结算成 Up。但因为 crash 腿里有 32 个高赔率的 Down 赢单，把亏损拉回来一部分。
+
+这不是“识别了单边行情”，而是<strong>方向偏置碰巧和部分 crash 窗口同向</strong>。
+
+### 2. 它没有做 baseline 那种高价频繁换手
+
+这是最关键的区别。
+
+baseline 在 10-30 的高价换手非常凶：
+
+- 60–100¢ 卖出 60 个窗口，净 <code>-$143.82</code>
+- 3 腿以上窗口 <code>-$129.41</code>
+
+iter6 则相反：
+
+- 60–100¢ 只卖了 13 个窗口，净 <code>+$9.60</code>
+- 高价持有 24 个窗口，只亏 <code>-$5.93</code>
+- 3 腿窗口只有 17 个，反而 <code>+$16.94</code>
+- 1 腿窗口 116 个，<code>-$141.75</code>
+</div>
+        </section>
+        <section class="turn" data-turn="284">
+          <div class="turn-hd"><span>第 284 轮 · 593 字 · 1 步</span><span>11-03 12:36</span></div>
+          <div class="txt">有。这个 ensemble 的结果最值得写进 PLAN 的，不是“它赚了 +$124”，而是：
+
+所以我建议新增 2 个 P0，改写 3 个现有项。
+
+| 优先级 | TODO | 要做什么 | 现有证据 |
+| P0 | <strong>扩展现有 <code>sold-winner-counterfactual</code></strong> | 把 ensemble 加入冻结对象；normal 和 10-30 分开；按价格桶统计“首笔方向最终赢、但中途卖出”的实际 PnL 与持有反事实 | normal 254 个卖出窗口中 122 个首笔方向最终赢：实际 <code>-$178.62</code>；58 个可精确还原的 2 腿窗口，持有反事实 <code>+$303.49</code> |
+
+一句话：
+
+&gt; <strong>不要再加“10-30 怎么赚更多”的 TODO。10-30 只做压力测试；PLAN 要加的是“normal 是否真的为正”和“ensemble 是否有增量”的 gate。</strong>
+
+核心新增就是两个：
+
+现有 <code>sold-winner-counterfactual</code>、<code>penny-entry-hard-gate</code>、<code>price-conditioned-exit-audit</code> 只需要把 ensemble 加进冻结样本和验收条件。
+</div>
+        </section>
+        <section class="turn" data-turn="305">
+          <div class="turn-hd"><span>第 305 轮 · 1,076 字 · 1 步</span><span>11-03 18:22</span></div>
+          <div class="txt">抱歉，我上一段把整个仓库的 switch-net / hold-net 都混进来了。你要的是<strong>这次 <code>hold-net-ralph-decision</code> 决策 loop 的结果</strong>，范围就只该是这一个 loop。
+
+## 这个 loop 在做什么
+
+不是重训模型，而是在<strong>冻结的 <code>0+3</code> ensemble + seed0/seed3</strong> 上，每轮只改一个决策规则（聚合方式、entry 门槛、exit 规则），然后在一批 normal 窗口上测它能不能同时过：
+
+- normal net
+- 2x fee PnL
+- coverage
+- 高价卖出赢家 / 尾部
+
+## 逐轮结果
+
+| 10 | 高价一律持有 | +$124.32 | -$35.61 | 持住了更多输家，更差，不保留 |
+
+## 第 12 轮为什么停在 STOP
+
+- 124 个窗口被 veto，只有 10 个还能在 deadline 成交
+- 4 个 pre-registered gate 全过
+- 2x fee <code>+$236.36</code>
+
+但它不能算可上线候选：
+
+- 改善只有 <code>+$18.59 / 1,149</code> 窗 ≈ <code>$0.016/window</code>
+- 4 个 normal 日里 2 个下降
+- 只有 10 个窗口真正被改变，样本太薄
+- 10-30 压力日比 mean 差 <code>-$61.80</code>
+
+所以第 12 轮只在自定义审计里“通过”，还没进标准评测链路。<code>STOP</code> 是正确动作。
+
+## 这个 loop 已经证伪的东西
+
+- 低价 <code>0–20¢</code> 纯持有是负期望（residual 43 窗 2 胜 <code>-$97.60</code>）；但低价<strong>卖出</strong>是正的（<code>+$109.42</code>）
+- 高价卖出赢家不是单纯“卖飞”，而是赢家/输家不可区分；blanket hold 更差</div>
+        </section>
+        <section class="turn" data-turn="333">
+          <div class="turn-hd"><span>第 333 轮 · 1,020 字 · 1 步</span><span>11-04 00:40</span></div>
+          <div class="txt">可以，而且<strong>这件事已经做过了</strong>：iteration 17 就是“修完 bug 后用同一批原始数据重新训练 + 重新评估”。
+
+## 旧 bug 到底是什么
+
+旧 reference 的训练集是 <code>2026-10-10..10-24</code>，但 early stopping 用的是 <code>2026-10-25/26</code>——而这两天正好在评估集 <code>10-25/26/28/29</code> 里。
+
+所以旧 baseline 的“最好 epoch”是看着测试日选出来的。iteration 16 精确复现后确认了这一点（权重最大差异 <code>0</code>），旧数字 <code>+$398.52</code> 因此作废。
+
+## iteration 17 已经重训了
+
+新 reference 的切分是：
+
+| 用途 | 日期 |
+
+这不是“丢了 10-23/24 的数据”，而是把这两天<strong>从 train 挪到了 valid</strong>：
+
+- 旧：train 到 10-24，early stop 偷看 10-25/26；
+- 新：train 到 10-22，10-23/24 只用于 early stop，10-25/26/28/29 完全不参与训练或选 epoch。
+
+重训结果就是现在的干净 baseline：
+
+所以“用同样的数据重新生成基线”已经完成；只是<strong>不能用同一批 1,149 窗口既训练又评估</strong>，那会把刚修掉的泄漏重新引回来。
+
+## 如果你想用回旧训练跨度
+
+还有一个合法的变体：<strong>train 到 10-24，但不做 early stopping，固定 epoch 数</strong>，然后直接评估 1,149。这样 10-23/24 仍留在训练集里，也不碰测试日。
+
+代价是 epoch 数必须事先定死，不能看测试结果调；而旧 recipe 的 250 epochs 本来就不是为这个切分选的。所以它只能作为<strong>敏感性检查</strong>：
+</div>
+        </section>
+        <section class="turn" data-turn="351">
+          <div class="turn-hd"><span>第 351 轮 · 1,091 字 · 1 步</span><span>11-04 01:28</span></div>
+          <div class="txt">先统一口径：我理解“这两个模型”是 <strong>expanding 9/11/13 和 fixed-9</strong> 两套 reference。
+
+- <strong>主 baseline：expanding</strong>（<code>+$380.27 / 2x +$37.16</code>）
+- <strong>控制 baseline：fixed-9</strong>（<code>+$178.22 / 2x -$273.44</code>）
+- 候选必须两套都跑；主结论看 expanding，fixed-9 只做敏感性检查。若符号翻转，直接判不稳。
+
+在这个口径下，需要重复的实验分三档：
+
+## P0：必须重跑，否则旧结论不能沿用
+
+| 轮次 | 实验 | 为什么必须重跑 |
+| <strong>15</strong> | <code>calibration-in-training</code> | 旧结论“0–20 不是概率偏差，是选择偏差”需要用新 rolling folds 复核；这是模型级方向，不能只靠旧 1,149 窗口定论 |
+
+这四轮里，<strong>8 是前提</strong>：如果 0+3 增量本身不成立，13–15 的模型级实验就失去比较对象。建议顺序：<strong>8 → 13/14 → 15</strong>。
+
+## P1：只做诊断重跑，不作为候选
+
+这些是“解释 baseline 为什么亏”的审计，不是新策略：
+
+| 轮次 | 实验 | 用途 |
+| 5 | <code>switch-counterfactual-audit</code> | 第一次退出是否仍创造价值、后续换手是否仍吃掉它 |
+| 6 | <code>sold-winner</code> | 新 baseline 下卖飞赢家/持有输家是否仍是主因 |
+
+这些只用于解释，不进 promotion gate；也不要拿它们的“相对改善”当候选。
+
+## 不重复：已关闭或已成为 baseline
+
+| 轮次 | 实验 | 处理 |</div>
+        </section>
+        <section class="turn" data-turn="371">
+          <div class="turn-hd"><span>第 371 轮 · 915 字 · 2 步</span><span>11-04 10:48</span></div>
+          <div class="txt">因为 <strong><code>2x fee</code> 是绝对金额，不是收益率，也不是“手续费翻倍后仍然更强”的证明</strong>。它等价于：
+
+也就是在已经扣过一次手续费的基础上，再扣一遍同样的费用。谁交易得少，谁被扣得少。
+
+## 数字拆开看
+
+所以：
+
+- baseline 的 gross edge 更大：<code>$723</code> vs <code>$217</code>；
+- 但 baseline 的手续费是 <code>$343</code>，gate 只有 <code>$77</code>；
+- 多扣一遍费用时，baseline 被扣 <code>$343</code>，gate 只被扣 <code>$77</code>；
+- 结果 baseline 从 <code>+$380</code> 掉到 <code>+$37</code>，gate 从 <code>+$139</code> 掉到 <code>+$62</code>；
+- gate 的 2x PnL 反而高了约 <code>$25</code>。
+
+这不是 gate 的 alpha 更强，而是它<strong>放弃了 78% 的窗口</strong>，只做 22%，所以交的费少。
+
+## 但这不是“gate 更好”
+
+full-C gate+veto 的覆盖只有 <strong>22.2%</strong>，baseline 是 <strong>57.6%</strong>。它是在一个更小的、自己挑过的子集上交易：
+
+- 组合层面：net PnL 少 <code>$251</code>，coverage 少 35 个百分点；
+- 2x 层面：只多 <code>$22</code>，而且 fixed-9 上直接变成 <code>-$312.68</code>；
+- 这不是同一个覆盖面上的优势，而是“少交易 → 少交费”的机械结果。
+
+如果按<strong>每个已成交窗口</strong>看，gate 的 2x 确实更耐费（<code>$0.145/窗口</code> vs baseline <code>$0.038/窗口</code>），说明它选中的窗口质量/费用结构更好；但它选得太少，组合总收益不够，也过不了 <code>coverage &gt;= 40%</code> 的门槛。
+
+## 一句话
+
+<strong>2x 更高，是因为 gate 的手续费基数小，不是因为它更会赚钱。</strong></div>
+        </section>
+        <section class="turn" data-turn="386">
+          <div class="turn-hd"><span>第 386 轮 · 1,585 字 · 7 步</span><span>11-04 19:37</span></div>
+          <div class="txt">结论先说：
+
+&gt; <strong><code>+$380.27</code> 不是“按今天规则的真 baseline”。它没有受到今天修的那几个 discounted-label bug 的数值影响，但它是一个未折扣的 raw reference，而且不是当前代码可逐位复现的 baseline。</strong>
+
+## 1. 今天的 bug 有没有影响它？
+
+### 没有影响的部分
+
+expanding reference 的协议本身是：
+
+- 每个 fold 用 <strong>inner train + inner valid</strong> 训练/early-stop；
+- outer 2 天只评分一次；
+- seeds <code>0/3</code>、margins <code>0/0.01</code>、entry floor <code>0.0007</code> 固定；
+- 不在 outer 上选参。
+
+所以从<strong>标签 bug</strong>角度看，<code>+$380.27</code> 是干净的。
+
+### 但它仍然不是“真 baseline”
+
+#### ① 它完全不符合今天的折扣规则
+
+AGENTS 已经明确：
+
+&gt; 所有模型的 baseline、候选比较、上线前评估，都必须同时应用低买/高卖折扣。
+
+- 入场 <code>ask &lt;= 0.20</code> 的正利润没有打折；
+- 卖出 <code>bid &gt;= 0.80</code> 的正利润没有打折；
+- 结算只按 raw payout。
+
+同一个模型加回放折扣后：
+
+所以按今天的口径，它连“正 baseline”都不是。
+
+#### ② 它本身也不稳定
+
+- 2x fee 只有 <code>+$37.16</code>；
+- A2 leave-one-day-out 只有 <code>4/6</code>；
+- 去掉 10-23 是 <code>-$26.96</code>，去掉 10-25 是 <code>-$23.83</code>；
+- 1,720 个窗口只有 6 天，不是 untouched holdout；</div>
+        </section>
+          </div>
+        </div>
+      </div>
+      <p class="cap">20 轮真实对话（hold-net-rl，turn 2–382）：左栏 20 条、共 946 字；右侧内容共 13.5 万字（每轮截断显示）。左栏常驻不随滚动消失，当前轮次自动滚进视野并点亮，与正文同色、右侧无边界；点击任意一条跳到对应回复，滚右侧也会反向点亮左侧。实现上不必接管 <code>chat.flow</code>：注入常驻左栏 + 消息行加内边距 + 读写宿主滚动容器，沿用现成锚点即可。</p>
+    </section>
+
+    <section data-variant="Gutter" aria-label="左槽高亮" hidden>
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="flow">
+          <div class="u">
+            <span class="ti">2</span>
+            <p>给我讲一下现在的switch-net-rl</p>
+          </div>
+          <div class="a">
+            <div class="txt">我先从仓库里找到 <code>switch-net-rl</code> 的实现、配置和最近提交，再按实际代码讲它现在怎么运行、各模块怎么配合，以及有哪些限制。
+
+仓库里有一整条 switch-net 研究线，并且最近刚把 Ralph 分支合进了主线。我会重点核对三处：线上导出策略、训练器的 PPO 语义，以及最新研究结论是否已经进入实际策略。
+
+Let&#x27;s read strategy remaining around SwitchNetStrategy.
+
+两点值得记住：
+
+1. <strong>全知上限很高，但这不代表可执行。</strong> 上限是「每个 tick 都能看到未来再换手」的每份价值总和；它说明反向的时机确实存在，但当前特征还预见不到，而且每换一次要付两份吃单手续费。
+2. <strong>没有任何窗口限制只会更糟。</strong> 越早放开，模型越早开始猜方向，换手越多、手续费越多。120 秒那一档最好，但仍然打不过买定离手。
+
+早期用「每份」记账时这一版看起来是正收益（+$10</div>
+            <div class="steps"><span class="st">5.3 万字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 53,282 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">19</span>
+            <p>&gt; 它只能根据当前盘口、gap、订单流和持仓方向重新判断。训练奖励虽然会在卖出时体现损失，但策略状态里缺少 entry price，跨多个 tick 归因比较困难。
+&gt;
+&gt; <code>margin=0.01</code> 也只看当前 logit 的改善，不会检查：
+&gt;
+&gt; - 这一笔实际会损失多少；
+&gt; - 要跨多宽的 bid-ask spread；
+&gt; - 新方向是否只是刚刚涨上去；
+&gt; - 距离上一次换边过了多久</p>
+          </div>
+          <div class="a">
+            <div class="txt">这个方向应该按“先补状态，再改决策，再调执行”的顺序，不要先继续扫 <code>margin</code>。现有研究已经说明，单独改动态 margin、cooldown、sizing 或限价执行都没有稳定收益。
+
+### 1. 先补全策略状态，这是最高优先级
+
+当前 PPO 是前馈 MLP，没有历史记忆。若 observation 不包含成本基础，它就不是完整的决策状态。
+
+建议增加这些与当前持仓绑定的特征：
+
+- <code>avg_entry_price</code>：含手续费后的加权平均买入成本。
+- <code>unrealized_pnl_bps</code>：<code>(当前可卖 bid - avg_entry_price) / avg_entry_price</code>。
+- <code>liquidation_value_usd</code>：当前持仓按 bid 卖出后真正能拿回多少钱。
+- <code>holding_seconds</code>：当前方向已经持有多久。
+- <code>seconds_since_last_switch</code>：距上次</div>
+            <div class="steps"><span class="st">2,064 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 2,064 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">34</span>
+            <p>ok，那继续吧</p>
+          </div>
+          <div class="a">
+            <div class="txt">我继续做方向可预测性审计，暂不再训练 value network。先用相同时间段比较三类信息：单纯 gap、盘口隐含概率、以及加入订单流/路径特征后的模型，按剩余时间桶看样本外 AUC、Brier 和准确率。只有前者之外仍有稳定增量，才值得回到 switch-net-v2/rl-v2。
+
+Feature sets by name:
+
+- Could also bucket <code>10-30</code>, etc.
+
+Let&#x27;s implement.
+
+&quot;&quot;&quot;一条 tick / 一个窗口 → 字段字典：两侧盘口 + 30 秒路径量。与模型无关。
+
+这份字段表是&quot;完整样本&quot;的底料（见 <code>dataset.FullSample</code>）：谁算自己的特征都从这里取，
+模型之间不共享特征、也不互相 import——以前这份构造住在 <code>models/switch_net/rows.py</code>，
+而认赔那条路反过来 import 它，所以搬到这里。
+
+阈值）和手数计算</div>
+            <div class="steps"><span class="st">5,976 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 5,976 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">49</span>
+            <p>当然最好的情况是每个seed的表现都符合要求，所以我们应该仔细看一下27D的 switch-net 在 seed 0 和 seed 2 时的表现有什么区别</p>
+          </div>
+          <div class="a">
+            <div class="txt">我会做行为级对比，不只比较总 PnL：重训 27D 的 seed 0/2，按日、时间桶、ask 桶、首笔方向、换手次数和共同窗口拆分，找出两个 seed 分别依赖哪类窗口以及为何在不同测试日反向。
+
+&quot;&quot;&quot;一笔入场怎么算、一组窗口的账怎么记：和线上同一套下单判断与手续费。
+
+两层：
+
+- <strong>原子件</strong>：手续费和盈亏，以及&quot;这一秒该不该买、买得起多少&quot;这一整段——闸门和金额都走
+谁都不该再自己写一套——影子盘和回测对不上过（见 README「口径」一节）。
+- <strong><code>ScoreCard</code></strong>：一组窗口的账。逐窗明细（窗口 → 赚了多少）是原生字段，配对比较、跨折
+相加、置信区间都从它出发，不用再靠一个 <code>pnls</code> 附件传来传去。
+&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass, field
+
+&quot;&quot;&quot;一行</div>
+            <div class="steps"><span class="st">3,591 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 3,591 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">65</span>
+            <p>但我们现在是在训练 switch-net，这只是 switch-net-rl 的 warm-up</p>
+          </div>
+          <div class="a">
+            <div class="txt">Let&#x27;s formulate answer concise, no repetitive.
+
+对，这个区分很重要。
+
+职责应该分开：
+
+| 组件 | 负责什么 |
+| <code>switch-net-v2</code> | 学习正常市场状态下的入场、换边、持仓行为，为 PPO actor 提供初始权重 |
+| 线上策略 | 严格执行 RL 训练时的 mask；不能额外加事后 fallback |
+
+因此：
+
+&gt; “每个窗口必须成交”是 RL 环境的约束，不是 switch-net-v2 自身必须满足的最终目标。
+
+但 warm-up 和 RL 环境也不能完全脱节。如果 RL 在 deadline 后会禁止 flat、强制选 Up/Down，而 warm-up actor 完全没见过这种状态，PPO 就要从零学习一个很少出现但重要的末端动作。现有强制补单实验说明，未约束的 warm-up 在这一状态下几乎随机，胜率只有 1%–6%。
+
+更合理的 w</div>
+            <div class="steps"><span class="st">1,147 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,147 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">80</span>
+            <p>那把warm-start的 hold-net baseline 放到影子盘上去看看实盘效果吧，不耽误我们继续优化PPO</p>
+          </div>
+          <div class="a">
+            <div class="txt">我先核对影子盘的候选发现、部署目录和策略加载路径。<code>hold-net</code> 目前没注册，若要进入影子盘，可能需要一条显式的 research-only 装载路径；我会优先复用现有机制，避免把它加入默认注册表或实盘候选。
+
+src/poly_btc_5m_99/deployment.py:240
+
+&quot;&quot;&quot;一个模型就是一个目录，目录里放权重、它自己的设置、以及它是怎么训出来的。
+
+model.json      权重（神经网络、逻辑回归、switch-net 才有；规则类候选没有）
+settings.yaml   模型名字、策略名，以及这个模型该用的入场窗和下注限制
+下注限制的 <code>sizing</code> 段是门槛 + 金额曲线（见 sizing.Sizing）
+stale-ask 和 exit-net 的 stale-bid 候选另有 rule 段，阈值就是模型
+provenance.json 这一份是哪版代码、哪份特征口径、哪几天训出来的
+
+</div>
+            <div class="steps"><span class="st">2.1 万字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 21,379 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">98</span>
+            <p>每15分钟检查一下运行情况</p>
+          </div>
+          <div class="a">
+            <div class="txt">我会先检查是否已有针对这个 Ralph loop 的定时任务，避免重复创建；随后建立一个每 15 分钟的本地 heartbeat，只在循环停止、失败、出现 <code>STOP</code> 或明显状态变化时提醒，并顺带确认当前运行状态。
+
+name = &quot;影子盘每日盈亏图（每天 00:20 北京时间）&quot;
+prompt = &quot;每天刷新「影子盘每日盈亏与当日胜率」这张图：把服务器上影子盘的模拟成交数据同步到本地，按模型按天重算盈亏和胜率，更新这张 canvas 图并把它发给我。\n\n背景：这张图是一个 HTML 片段，在 /Users/luyun/.codex/visualizations/2026/10/16/01a1441d-d8ac-72a2-a343-7482872c4b17/shadow-daily-pnl.html，里面有两个 canvas：图一是每个候选每天的盈亏折线（纵轴美元，最后一天可能只是当天的半截），图二是「最近一个完整日」的胜</div>
+            <div class="steps"><span class="st">5,841 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 5,841 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">118</span>
+            <p>PPO 怎么使用训练集训练的</p>
+          </div>
+          <div class="a">
+            <div class="txt">我会按实际训练链路讲：数据如何切分、一个窗口怎样变成 PPO episode、动作和奖励怎么产生、rollout/GAE/PPO 更新如何消费训练集，以及验证集只在哪一步参与。重点会区分完整训练数据和当前 Ralph 冻结子集。
+
+&quot;&quot;&quot;Research-only PPO trainer for hold-net-rl.
+
+from __future__ import annotations
+
+model: object
+
+&quot;activation_fn&quot;: nn.ReLU,
+
+from __future__ import annotations
+
+import numpy as np
+
+candidate.model,
+
+Need answer direct.
+
+以当前 <code>hold-net-rl</code> 为例，PPO 的训练集不是直接喂“标签”做监督学习，而是把训练窗口变成逐个 tick 的美元盈亏环境，再用 PPO 学习动作。
+
+#</div>
+            <div class="steps"><span class="st">2,294 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 2,294 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">135</span>
+            <p>ok，把这几个实验加入 plan。不过这次又过了一天多，数据会怎么使用？</p>
+          </div>
+          <div class="a">
+            <div class="txt">我会把这轮限制为“新轴，不追加重跑旧搜索”，并先按时间顺序重新定义数据用途：已经用于选模型和 Ralph 调参的 10/24–10/27 不再算新鲜测试集；10/28 之后的 shadow 数据只能先用于 forward audit。若在它上面调 calibration/margin，它就会转为 validation，必须再从 10/29 之后锁一份新的未触碰 test。先检查当前数据边界和 Plan 结构。
+
+Need decide exact experiment design and data protocol. User asks &quot;ok，把这几个实验加入 plan。不过这次又过了一天多，数据会怎么使用？&quot;
+
+# 假设队列
+
+状态：<code>[ ]</code> 待做 · <code>[~]</code> 进行中 · <code>[x]</code> 证实 · <code>[-]</code> 否定。
+
+- [x] <strong>基线</strong>：冻结当前 <code>hold-net-rl</code>、34D 特征、terminal rul</div>
+            <div class="steps"><span class="st">1.8 万字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 18,098 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">192</span>
+            <p>总结一下Ralph loop的成果</p>
+          </div>
+          <div class="a">
+            <div class="txt">我先从 <code>RESULTS.md</code>、<code>STATE.md</code>、最终 metrics 和提交历史提取权威结果，区分“研究结论、最好模型、Ralph 产物”与“是否可部署”。
+
+# 逐轮结果
+
+| 0（修正切折后重跑） | 冻结基线 | 无代码改动 | -$19.29 | 9 | 40.9% | -$21.15 | true | 未保留：成交少于 10，2x fee 为负；复现与负对照按协议跳过 |
+| 6 | checkpoint 覆盖率门控 | 仅让覆盖率达到 40% 的 checkpoint 参与最差日/合计 PnL 排序 | -$0.50 | 10 | 45.5% | -$2.89 | true | 未保留：2x fee 为负；复现与负对照按协议跳过；源码已回滚 |
+| 11 | Flat 方向特征交换诊断 | 冻结 warm 与 52,800 checkpoint，交换六组 Flat Up/Down 市场特征 | -$19.29</div>
+            <div class="steps"><span class="st">7,309 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 7,309 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">213</span>
+            <p>我同意先回到 supervised Q-value，单独研究 side-vs-Flat 的费用后美元价值。先构建一个更加平衡的warm-start，保证PPO不会向一个方向坍缩</p>
+          </div>
+          <div class="a">
+            <div class="txt">我会先审计现有 supervised Q 训练和候选模型的方向分布，再实现一个“镜像盘口对称”的 warm-start 训练方案。评价会同时看费用后 PnL、Up/Down 单边率、镜像响应误差和 seed 稳定性，不会只优化总收益。
+
+## codex/ralph-hold-net
+
+&quot;&quot;&quot;Fit the independent hold-net value network.&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import numpy as np
+# torch 只在训练器加载 fit 时出现；hold-net 的运行期 model.py 保持纯 numpy。
+import torch
+
+return HOLD_SUPERVISED_FEATURES
+return HOLD_RL_FEATURES
+
+from __future__ import annotations
+
+impor</div>
+            <div class="steps"><span class="st">3,506 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 3,506 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">228</span>
+            <p>这样是不是更容易过拟合了</p>
+          </div>
+          <div class="a">
+            <div class="txt">Let&#x27;s generate final in Chinese not too verbose.
+
+是，<strong>直接拆成两个完整 residual 网络会明显增加过拟合风险</strong>。
+
+现在已经有两个警告：
+
+- 完整 576 窗里，residual 相比 warm 是 <code>111</code> 窗改善、<code>135</code> 窗恶化、<code>330</code> 窗不变。
+- 聚合收益高度依赖少数大盈利窗口：最大单窗相对改善约 <code>+$33.67</code>，最大单窗恶化约 <code>-$84.24</code>。
+- 10/26 的 2x-fee PnL 仍是 <code>-$39.86</code>，跨日不稳定。
+
+拆开后如果 entry gate 和 position gate 都自由训练，会出现：
+
+1. 参数和有效自由度增加，但输入信息没有增加。
+2. 两个 gate 仍只优化同一个 episode PnL，容易互相补偿，归因依旧不清楚。
+3. 在 576 个高度相关的 5 分钟窗口上，可能分别拟合 10/25 和 10</div>
+            <div class="steps"><span class="st">1,044 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,044 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">253</span>
+            <p>还有没有应该固定为超參的参数？</p>
+          </div>
+          <div class="a">
+            <div class="txt">真正需要收紧的不是“把所有数字都拿来扫”，而是把会影响 action mask、标签、episode 时域和回放结果的参数纳入统一的 model contract。现在我把当前硬编码与已记录超参分开，避免把风险/仓位参数和模型行为参数混在一起。
+
+&quot;&quot;&quot;Independent feature and action contract for hold-net.&quot;&quot;&quot;
+
+from __future__ import annotations
+
+from __future__ import annotations
+
+super().__init__(*args, **kwargs)
+
+发现一个额外的实现风险：回放层仍把窗口上界写死为 120 秒，而训练和线上使用 <code>max_left</code>。如果以后正式把 <code>max_left</code> 做成 30/60 等超参，这条回放路径会先把评估契约破坏掉。
+
+for index, field in enumer</div>
+            <div class="steps"><span class="st">1,512 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,512 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">269</span>
+            <p>为什么 hold-net-iter6-coverage-gate-2026-10-28 在 10-30 号的极端行情里反而表现的不错</p>
+          </div>
+          <div class="a">
+            <div class="txt">先把“不错”定义清楚：<strong>iter6 在 10-30 不是赚钱，只是比 baseline 少亏很多。</strong>
+
+- iter6：<code>-$81.38</code>，165 个交易窗口，148 个结算
+- baseline：<code>-$287.32</code>，192 个交易窗口
+- iter6 自己其他日子：10/29 <code>-$77.73</code>、10/31 <code>-$15.48</code>、11/01 <code>-$181.98</code>
+
+所以 10-30 对 iter6 来说并不是“表现好”，只是<strong>没有像 baseline 那样被高价换手打穿</strong>。
+
+## 为什么它少亏
+
+### 1. 它的 Down 偏差刚好撞上了 crash 腿
+
+iter6 首笔入场 <code>162 Down / 3 Up</code>，最终持仓 <code>225 Down / 6 Up</code>。10-30 是日线级别的下跌日，部分 5 分钟窗口确实结算 Down。
+
+它大部分时间其实是错的：最终 Down 的窗口里，110 个结算成 Up。但因为 c</div>
+            <div class="steps"><span class="st">1,558 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,558 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">284</span>
+            <p>有什么可以写进plan的TODO</p>
+          </div>
+          <div class="a">
+            <div class="txt">有。这个 ensemble 的结果最值得写进 PLAN 的，不是“它赚了 +$124”，而是：
+
+所以我建议新增 2 个 P0，改写 3 个现有项。
+
+| 优先级 | TODO | 要做什么 | 现有证据 |
+| P0 | <strong>扩展现有 <code>sold-winner-counterfactual</code></strong> | 把 ensemble 加入冻结对象；normal 和 10-30 分开；按价格桶统计“首笔方向最终赢、但中途卖出”的实际 PnL 与持有反事实 | normal 254 个卖出窗口中 122 个首笔方向最终赢：实际 <code>-$178.62</code>；58 个可精确还原的 2 腿窗口，持有反事实 <code>+$303.49</code> |
+
+一句话：
+
+&gt; <strong>不要再加“10-30 怎么赚更多”的 TODO。10-30 只做压力测试；PLAN 要加的是“normal 是否真的为正”和“ensemble 是否有增量”的 gate。</strong>
+
+核心新增就是两个：
+
+现有</div>
+            <div class="steps"><span class="st">593 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 593 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">305</span>
+            <p>我是说这次的ralph loop的结果，为什么会有switch-net的相关内容？</p>
+          </div>
+          <div class="a">
+            <div class="txt">抱歉，我上一段把整个仓库的 switch-net / hold-net 都混进来了。你要的是<strong>这次 <code>hold-net-ralph-decision</code> 决策 loop 的结果</strong>，范围就只该是这一个 loop。
+
+## 这个 loop 在做什么
+
+不是重训模型，而是在<strong>冻结的 <code>0+3</code> ensemble + seed0/seed3</strong> 上，每轮只改一个决策规则（聚合方式、entry 门槛、exit 规则），然后在一批 normal 窗口上测它能不能同时过：
+
+- normal net
+- 2x fee PnL
+- coverage
+- 高价卖出赢家 / 尾部
+
+## 逐轮结果
+
+| 10 | 高价一律持有 | +$124.32 | -$35.61 | 持住了更多输家，更差，不保留 |
+
+## 第 12 轮为什么停在 STOP
+
+- 124 个窗口被 veto，只有 10 个还能在 deadline 成交
+- 4 个 pre</div>
+            <div class="steps"><span class="st">1,076 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,076 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">333</span>
+            <p>旧 reference bug 修完了之后不能用同样的数据重新生成基线，重新训练和评估吗？</p>
+          </div>
+          <div class="a">
+            <div class="txt">可以，而且<strong>这件事已经做过了</strong>：iteration 17 就是“修完 bug 后用同一批原始数据重新训练 + 重新评估”。
+
+## 旧 bug 到底是什么
+
+旧 reference 的训练集是 <code>2026-10-10..10-24</code>，但 early stopping 用的是 <code>2026-10-25/26</code>——而这两天正好在评估集 <code>10-25/26/28/29</code> 里。
+
+所以旧 baseline 的“最好 epoch”是看着测试日选出来的。iteration 16 精确复现后确认了这一点（权重最大差异 <code>0</code>），旧数字 <code>+$398.52</code> 因此作废。
+
+## iteration 17 已经重训了
+
+新 reference 的切分是：
+
+| 用途 | 日期 |
+
+这不是“丢了 10-23/24 的数据”，而是把这两天<strong>从 train 挪到了 valid</strong>：
+
+- 旧：train 到 10-24，early stop 偷看</div>
+            <div class="steps"><span class="st">1,020 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,020 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">351</span>
+            <p>ok，这个两个模型可以作为baseline了。再重新说一下我们需要重复哪些实验</p>
+          </div>
+          <div class="a">
+            <div class="txt">先统一口径：我理解“这两个模型”是 <strong>expanding 9/11/13 和 fixed-9</strong> 两套 reference。
+
+- <strong>主 baseline：expanding</strong>（<code>+$380.27 / 2x +$37.16</code>）
+- <strong>控制 baseline：fixed-9</strong>（<code>+$178.22 / 2x -$273.44</code>）
+- 候选必须两套都跑；主结论看 expanding，fixed-9 只做敏感性检查。若符号翻转，直接判不稳。
+
+在这个口径下，需要重复的实验分三档：
+
+## P0：必须重跑，否则旧结论不能沿用
+
+| 轮次 | 实验 | 为什么必须重跑 |
+| <strong>15</strong> | <code>calibration-in-training</code> | 旧结论“0–20 不是概率偏差，是选择偏差”需要用新 rolling folds 复核；这是模型级方向，不能只靠旧 1,149 窗口定论 |
+
+这四轮里，<strong>8 是前提</strong>：如果 0+</div>
+            <div class="steps"><span class="st">1,091 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,091 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">371</span>
+            <p>为什么 full-C gate/gate+veto 的 2x fee 比 supervised baseline 更好？</p>
+          </div>
+          <div class="a">
+            <div class="txt">因为 <strong><code>2x fee</code> 是绝对金额，不是收益率，也不是“手续费翻倍后仍然更强”的证明</strong>。它等价于：
+
+也就是在已经扣过一次手续费的基础上，再扣一遍同样的费用。谁交易得少，谁被扣得少。
+
+## 数字拆开看
+
+所以：
+
+- baseline 的 gross edge 更大：<code>$723</code> vs <code>$217</code>；
+- 但 baseline 的手续费是 <code>$343</code>，gate 只有 <code>$77</code>；
+- 多扣一遍费用时，baseline 被扣 <code>$343</code>，gate 只被扣 <code>$77</code>；
+- 结果 baseline 从 <code>+$380</code> 掉到 <code>+$37</code>，gate 从 <code>+$139</code> 掉到 <code>+$62</code>；
+- gate 的 2x PnL 反而高了约 <code>$25</code>。
+
+这不是 gate 的 alpha 更强，而是它<strong>放弃了 78% 的窗口</strong>，只做 22%，所以交的费少。
+
+## 但这不是“gate 更好”
+
+full-C gate+vet</div>
+            <div class="steps"><span class="st">915 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 915 字</div>
+          </div>
+          <div class="u">
+            <span class="ti">386</span>
+            <p>expanding supervised 0+3 + entry veto 有没有受到今天修的几个bug的影响，是不是一个真的baseline？</p>
+          </div>
+          <div class="a">
+            <div class="txt">结论先说：
+
+&gt; <strong><code>+$380.27</code> 不是“按今天规则的真 baseline”。它没有受到今天修的那几个 discounted-label bug 的数值影响，但它是一个未折扣的 raw reference，而且不是当前代码可逐位复现的 baseline。</strong>
+
+## 1. 今天的 bug 有没有影响它？
+
+### 没有影响的部分
+
+expanding reference 的协议本身是：
+
+- 每个 fold 用 <strong>inner train + inner valid</strong> 训练/early-stop；
+- outer 2 天只评分一次；
+- seeds <code>0/3</code>、margins <code>0/0.01</code>、entry floor <code>0.0007</code> 固定；
+- 不在 outer 上选参。
+
+所以从<strong>标签 bug</strong>角度看，<code>+$380.27</code> 是干净的。
+
+### 但它仍然不是“真 baseline”
+
+#### ① 它完全不符合</div>
+            <div class="steps"><span class="st">1,585 字</span></div>
+            <div class="cut">已显示 420 字 · 本回合共 1,585 字</div>
+          </div>
+        </div>
+      </div>
+      <p class="cap">同样纯 CSS。阅读顺序不变，你的话靠底色与左侧竖条突出；但模型的万字回复仍然占满版面，最省事却不彻底。</p>
+    </section>
+
+    <section data-variant="Collapse" aria-label="折叠长回复" hidden>
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="flow">
+          <div class="u"><span class="ti">2</span><p>给我讲一下现在的switch-net-rl</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 5.3 万字 · 4 步</div>
+          <div class="u"><span class="ti">19</span><p>&gt; 它只能根据当前盘口、gap、订单流和持仓方向重新判断。训练奖励虽然会在卖出时体现损失，但策略状态里缺少 entry price，跨多个 tick 归因比较困难。
+&gt;
+&gt; <code>margin=0.01</code> 也只看当前 logit 的改善，不会检查：
+&gt;
+&gt; - 这一笔实际会损失多少；
+&gt; - 要跨多宽的 bid-ask spread；
+&gt; - 新方向是否只是刚刚涨上去；
+&gt; - 距离上一次换边过了多久</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 2,064 字 · 1 步</div>
+          <div class="u"><span class="ti">34</span><p>ok，那继续吧</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 5,976 字 · 4 步</div>
+          <div class="u"><span class="ti">49</span><p>当然最好的情况是每个seed的表现都符合要求，所以我们应该仔细看一下27D的 switch-net 在 seed 0 和 seed 2 时的表现有什么区别</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 3,591 字 · 4 步</div>
+          <div class="u"><span class="ti">65</span><p>但我们现在是在训练 switch-net，这只是 switch-net-rl 的 warm-up</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,147 字 · 1 步</div>
+          <div class="u"><span class="ti">80</span><p>那把warm-start的 hold-net baseline 放到影子盘上去看看实盘效果吧，不耽误我们继续优化PPO</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 2.1 万字 · 8 步</div>
+          <div class="u"><span class="ti">98</span><p>每15分钟检查一下运行情况</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 5,841 字 · 3 步</div>
+          <div class="u"><span class="ti">118</span><p>PPO 怎么使用训练集训练的</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 2,294 字 · 2 步</div>
+          <div class="u"><span class="ti">135</span><p>ok，把这几个实验加入 plan。不过这次又过了一天多，数据会怎么使用？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1.8 万字 · 3 步</div>
+          <div class="u"><span class="ti">192</span><p>总结一下Ralph loop的成果</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 7,309 字 · 3 步</div>
+          <div class="u"><span class="ti">213</span><p>我同意先回到 supervised Q-value，单独研究 side-vs-Flat 的费用后美元价值。先构建一个更加平衡的warm-start，保证PPO不会向一个方向坍缩</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 3,506 字 · 3 步</div>
+          <div class="u"><span class="ti">228</span><p>这样是不是更容易过拟合了</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,044 字 · 1 步</div>
+          <div class="u"><span class="ti">253</span><p>还有没有应该固定为超參的参数？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,512 字 · 3 步</div>
+          <div class="u"><span class="ti">269</span><p>为什么 hold-net-iter6-coverage-gate-2026-10-28 在 10-30 号的极端行情里反而表现的不错</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,558 字 · 3 步</div>
+          <div class="u"><span class="ti">284</span><p>有什么可以写进plan的TODO</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 593 字 · 1 步</div>
+          <div class="u"><span class="ti">305</span><p>我是说这次的ralph loop的结果，为什么会有switch-net的相关内容？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,076 字 · 1 步</div>
+          <div class="u"><span class="ti">333</span><p>旧 reference bug 修完了之后不能用同样的数据重新生成基线，重新训练和评估吗？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,020 字 · 1 步</div>
+          <div class="u"><span class="ti">351</span><p>ok，这个两个模型可以作为baseline了。再重新说一下我们需要重复哪些实验</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,091 字 · 1 步</div>
+          <div class="u"><span class="ti">371</span><p>为什么 full-C gate/gate+veto 的 2x fee 比 supervised baseline 更好？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 915 字 · 2 步</div>
+          <div class="u"><span class="ti">386</span><p>expanding supervised 0+3 + entry veto 有没有受到今天修的几个bug的影响，是不是一个真的baseline？</p></div>
+          <div class="fold"><span class="chev" aria-hidden="true"></span>模型回复 · 1,585 字 · 7 步</div>
+        </div>
+      </div>
+      <p class="cap">需要 JS（不是纯 CSS）。你的话占满一行、回复默认收成一行摘要，一屏能扫到十几轮；代价是读正文要两步，而且“继续”这种两字指令也照样占一行。</p>
+    </section>
+  </div>
+</div>
+
+<style>
+  #cc-mock {
+    --bg: light-dark(#ffffff, #191b20);
+    --bg2: light-dark(#f4f6f9, #12141a);
+    --line: light-dark(#e3e6eb, #2b2f37);
+    --tx: light-dark(#191c22, #e7e9ee);
+    --dim: light-dark(#69707c, #98a0ac);
+    --me: light-dark(#eef1ff, #1c2437);
+    --me-line: light-dark(#4b56d2, #9aa8ff);
+    --acc: light-dark(#4b56d2, #9aa8ff);
+    --chip: light-dark(#eff1f4, #23272f);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    color: var(--tx);
+    -webkit-font-smoothing: antialiased;
+  }
+  #cc-mock * { box-sizing: border-box; }
+  #cc-mock section[data-variant]:not([hidden]) { display: flex; flex-direction: column; }
+  #cc-mock .win {
+    height: 620px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #cc-mock .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    height: 40px;
+    flex: none;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  #cc-mock .ttl {
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #cc-mock .hint {
+    font-size: 10.5px;
+    color: var(--dim);
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--chip);
+    white-space: nowrap;
+  }
+  #cc-mock .tabs { margin-left: auto; display: flex; gap: 2px; flex: none; }
+  #cc-mock .tab { font-size: 11.5px; padding: 4px 9px; border-radius: 999px; color: var(--dim); }
+  #cc-mock .tab.on { color: var(--tx); background: var(--chip); font-weight: 500; }
+  #cc-mock .tab:not(.on) { opacity: .5; cursor: default; }
+
+  /* ---- Two lanes: 30% tab list + independent scroll pane ---- */
+  #cc-mock .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 30% minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  #cc-mock .lane {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #cc-mock .lane-hd {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 9px 10px 7px;
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    color: var(--dim);
+    background: var(--bg2);
+  }
+  #cc-mock .lane-hd b { color: var(--acc); font-weight: 500; }
+  #cc-mock .tablist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 0 12px;
+  }
+  #cc-mock .t {
+    display: grid;
+    grid-template-columns: 15px minmax(0, 1fr);
+    gap: 0 6px;
+    width: 100%;
+    margin-right: -1px;
+    padding: 7px 10px 7px 8px;
+    border: 1px solid transparent;
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: transparent;
+    color: var(--tx);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  #cc-mock .t:hover { background: color-mix(in srgb, var(--tx) 5%, transparent); }
+  #cc-mock .t:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+  #cc-mock .t.on {
+    background: var(--bg);
+    border-color: var(--line);
+    border-right-color: var(--bg);
+    box-shadow: inset 2px 0 0 var(--me-line);
+  }
+  #cc-mock .tno {
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+  }
+  #cc-mock .t.on .tno { color: var(--acc); }
+  #cc-mock .ttx {
+    font-size: 12px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  #cc-mock .tmeta {
+    grid-column: 2;
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  #cc-mock .pane {
+    position: relative;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    background: var(--bg);
+    padding: 12px 18px 28px;
+  }
+  #cc-mock .turn { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed var(--line); }
+  #cc-mock .turn:last-child { border-bottom: none; margin-bottom: 0; }
+  #cc-mock .turn-hd {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 10.5px;
+    color: var(--dim);
+    margin-bottom: 7px;
+    font-variant-numeric: tabular-nums;
+  }
+  #cc-mock .turn.is-target .turn-hd { color: var(--acc); }
+  #cc-mock .txt { white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.62; }
+  #cc-mock .steps { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  #cc-mock .st {
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--chip);
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  #cc-mock .cut {
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+    font-size: 10.5px;
+    color: var(--dim);
+  }
+  #cc-mock code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--chip);
+    white-space: nowrap;
+  }
+
+  /* ---- Gutter / Collapse: single flow ---- */
+  #cc-mock .flow {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #cc-mock .u {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 0 7px;
+    padding: 9px 12px 9px 8px;
+    border-left: 2px solid var(--me-line);
+    border-radius: 0 8px 8px 0;
+    background: var(--me);
+  }
+  #cc-mock .u p { margin: 0; font-size: 12.5px; line-height: 1.55; word-break: break-word; }
+  #cc-mock .a {
+    padding-left: 25px;
+    border-left: 1px solid var(--line);
+    margin-left: 8px;
+    font-size: 12px;
+    line-height: 1.62;
+  }
+  #cc-mock .a.tight { padding-top: 2px; }
+  #cc-mock .ti { font-size: 10.5px; line-height: 1.5; color: var(--dim); font-variant-numeric: tabular-nums; padding-top: 1px; }
+  #cc-mock .fold {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 0 6px 25px;
+    margin-left: 8px;
+    border-left: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--dim);
+  }
+  #cc-mock .fold .chev {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-right: 3px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+  #cc-mock .fold.open .chev { transform: rotate(45deg) translateX(-1px); }
+  #cc-mock .fold.open { color: var(--tx); }
+
+  #cc-mock .cap {
+    margin: 10px 2px 0;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--dim);
+  }
+  #cc-mock .cap code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--chip);
+  }
+  @media (max-width: 560px) {
+    #cc-mock .win { height: 540px; }
+    #cc-mock .split { grid-template-columns: 38% minmax(0, 1fr); }
+    #cc-mock .ttx { font-size: 11px; -webkit-line-clamp: 2; }
+    #cc-mock .txt, #cc-mock .a { font-size: 11px; }
+    #cc-mock .pane { padding: 10px 12px 20px; }
+    #cc-mock .u p { font-size: 11.5px; }
+  }
+</style>
+
+<script>
+(function () {
+  var root = document.getElementById('cc-mock');
+  if (!root) return;
+  var pane = root.querySelector('.pane');
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('.t'));
+  var turns = Array.prototype.slice.call(root.querySelectorAll('.turn'));
+  if (!pane || !tabs.length || !turns.length) return;
+
+  var lane = root.querySelector('.lane');
+
+  function followActive(el) {
+    if (!lane || !el) return;
+    var head = lane.querySelector('.lane-hd');
+    var inset = head ? head.offsetHeight : 0;
+    var lr = lane.getBoundingClientRect();
+    var er = el.getBoundingClientRect();
+    var top = er.top - lr.top + lane.scrollTop;
+    var bottom = top + er.height;
+    if (top - 6 < lane.scrollTop + inset) {
+      lane.scrollTop = Math.max(0, top - inset - 6);
+    } else if (bottom + 6 > lane.scrollTop + lane.clientHeight) {
+      lane.scrollTop = bottom - lane.clientHeight + 6;
+    }
+  }
+
+  function activate(turn) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-turn') === turn;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) followActive(t);
+    });
+    turns.forEach(function (s) {
+      s.classList.toggle('is-target', s.getAttribute('data-turn') === turn);
+    });
+  }
+
+  function jump(turn) {
+    var target = null;
+    turns.forEach(function (s) {
+      if (s.getAttribute('data-turn') === turn) target = s;
+    });
+    if (!target) return;
+    pane.scrollTop = target.offsetTop - 8;
+    activate(turn);
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { jump(t.getAttribute('data-turn')); });
+  });
+
+  function syncFromScroll() {
+    var y = pane.scrollTop + 40;
+    var current = turns[0].getAttribute('data-turn');
+    turns.forEach(function (s) {
+      if (s.offsetTop <= y) current = s.getAttribute('data-turn');
+    });
+    activate(current);
+  }
+
+  pane.addEventListener('scroll', syncFromScroll, { passive: true });
+
+  activate(turns[0].getAttribute('data-turn'));
+})();
+</script>

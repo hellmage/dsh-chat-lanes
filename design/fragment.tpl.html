@@ -1,0 +1,382 @@
+<div id="cc-mock">
+  <div class="viz-carousel" aria-label="对话窗口组织方案">
+    <section data-variant="Two lanes" aria-label="左标签 + 右正文">
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="hint">左栏常驻并自动跟随 · 右侧单轴滚动</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="split">
+          <div class="lane">
+            <div class="lane-hd">我说的 <b>@@USER_COUNT@@</b> 条 · @@TOTAL_USER@@ 字</div>
+            <div class="tablist" role="tablist" aria-label="我的提问">
+@@TABS@@
+            </div>
+          </div>
+          <div class="pane">
+@@PANE@@
+          </div>
+        </div>
+      </div>
+      <p class="cap">20 轮真实对话（hold-net-rl，turn 2–382）：左栏 @@USER_COUNT@@ 条、共 @@TOTAL_USER@@ 字；右侧内容共 @@TOTAL_AI@@（每轮截断显示）。左栏常驻不随滚动消失，当前轮次自动滚进视野并点亮，与正文同色、右侧无边界；点击任意一条跳到对应回复，滚右侧也会反向点亮左侧。实现上不必接管 <code>chat.flow</code>：注入常驻左栏 + 消息行加内边距 + 读写宿主滚动容器，沿用现成锚点即可。</p>
+    </section>
+
+    <section data-variant="Gutter" aria-label="左槽高亮" hidden>
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="flow">
+@@GUTTER@@
+        </div>
+      </div>
+      <p class="cap">同样纯 CSS。阅读顺序不变，你的话靠底色与左侧竖条突出；但模型的万字回复仍然占满版面，最省事却不彻底。</p>
+    </section>
+
+    <section data-variant="Collapse" aria-label="折叠长回复" hidden>
+      <div class="win">
+        <div class="bar">
+          <span class="ttl">hold-net-rl</span>
+          <span class="tabs"><span class="tab on">对话</span><span class="tab" title="示意：宿主标签栏占位，未接线">骨架</span><span class="tab" title="示意：宿主标签栏占位，未接线">轨迹</span></span>
+        </div>
+        <div class="flow">
+@@COLLAPSE@@
+        </div>
+      </div>
+      <p class="cap">需要 JS（不是纯 CSS）。你的话占满一行、回复默认收成一行摘要，一屏能扫到十几轮；代价是读正文要两步，而且“继续”这种两字指令也照样占一行。</p>
+    </section>
+  </div>
+</div>
+
+<style>
+  #cc-mock {
+    --bg: light-dark(#ffffff, #191b20);
+    --bg2: light-dark(#f4f6f9, #12141a);
+    --line: light-dark(#e3e6eb, #2b2f37);
+    --tx: light-dark(#191c22, #e7e9ee);
+    --dim: light-dark(#69707c, #98a0ac);
+    --me: light-dark(#eef1ff, #1c2437);
+    --me-line: light-dark(#4b56d2, #9aa8ff);
+    --acc: light-dark(#4b56d2, #9aa8ff);
+    --chip: light-dark(#eff1f4, #23272f);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    color: var(--tx);
+    -webkit-font-smoothing: antialiased;
+  }
+  #cc-mock * { box-sizing: border-box; }
+  #cc-mock section[data-variant]:not([hidden]) { display: flex; flex-direction: column; }
+  #cc-mock .win {
+    height: 620px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #cc-mock .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    height: 40px;
+    flex: none;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  #cc-mock .ttl {
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #cc-mock .hint {
+    font-size: 10.5px;
+    color: var(--dim);
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--chip);
+    white-space: nowrap;
+  }
+  #cc-mock .tabs { margin-left: auto; display: flex; gap: 2px; flex: none; }
+  #cc-mock .tab { font-size: 11.5px; padding: 4px 9px; border-radius: 999px; color: var(--dim); }
+  #cc-mock .tab.on { color: var(--tx); background: var(--chip); font-weight: 500; }
+  #cc-mock .tab:not(.on) { opacity: .5; cursor: default; }
+
+  /* ---- Two lanes: 30% tab list + independent scroll pane ---- */
+  #cc-mock .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 30% minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  #cc-mock .lane {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #cc-mock .lane-hd {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 9px 10px 7px;
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    color: var(--dim);
+    background: var(--bg2);
+  }
+  #cc-mock .lane-hd b { color: var(--acc); font-weight: 500; }
+  #cc-mock .tablist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 0 12px;
+  }
+  #cc-mock .t {
+    display: grid;
+    grid-template-columns: 15px minmax(0, 1fr);
+    gap: 0 6px;
+    width: 100%;
+    margin-right: -1px;
+    padding: 7px 10px 7px 8px;
+    border: 1px solid transparent;
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: transparent;
+    color: var(--tx);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  #cc-mock .t:hover { background: color-mix(in srgb, var(--tx) 5%, transparent); }
+  #cc-mock .t:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+  #cc-mock .t.on {
+    background: var(--bg);
+    border-color: var(--line);
+    border-right-color: var(--bg);
+    box-shadow: inset 2px 0 0 var(--me-line);
+  }
+  #cc-mock .tno {
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+  }
+  #cc-mock .t.on .tno { color: var(--acc); }
+  #cc-mock .ttx {
+    font-size: 12px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  #cc-mock .tmeta {
+    grid-column: 2;
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  #cc-mock .pane {
+    position: relative;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    background: var(--bg);
+    padding: 12px 18px 28px;
+  }
+  #cc-mock .turn { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed var(--line); }
+  #cc-mock .turn:last-child { border-bottom: none; margin-bottom: 0; }
+  #cc-mock .turn-hd {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 10.5px;
+    color: var(--dim);
+    margin-bottom: 7px;
+    font-variant-numeric: tabular-nums;
+  }
+  #cc-mock .turn.is-target .turn-hd { color: var(--acc); }
+  #cc-mock .txt { white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.62; }
+  #cc-mock .steps { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  #cc-mock .st {
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--chip);
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  #cc-mock .cut {
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+    font-size: 10.5px;
+    color: var(--dim);
+  }
+  #cc-mock code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--chip);
+    white-space: nowrap;
+  }
+
+  /* ---- Gutter / Collapse: single flow ---- */
+  #cc-mock .flow {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #cc-mock .u {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 0 7px;
+    padding: 9px 12px 9px 8px;
+    border-left: 2px solid var(--me-line);
+    border-radius: 0 8px 8px 0;
+    background: var(--me);
+  }
+  #cc-mock .u p { margin: 0; font-size: 12.5px; line-height: 1.55; word-break: break-word; }
+  #cc-mock .a {
+    padding-left: 25px;
+    border-left: 1px solid var(--line);
+    margin-left: 8px;
+    font-size: 12px;
+    line-height: 1.62;
+  }
+  #cc-mock .a.tight { padding-top: 2px; }
+  #cc-mock .ti { font-size: 10.5px; line-height: 1.5; color: var(--dim); font-variant-numeric: tabular-nums; padding-top: 1px; }
+  #cc-mock .fold {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 0 6px 25px;
+    margin-left: 8px;
+    border-left: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--dim);
+  }
+  #cc-mock .fold .chev {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-right: 3px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+  #cc-mock .fold.open .chev { transform: rotate(45deg) translateX(-1px); }
+  #cc-mock .fold.open { color: var(--tx); }
+
+  #cc-mock .cap {
+    margin: 10px 2px 0;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--dim);
+  }
+  #cc-mock .cap code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--chip);
+  }
+  @media (max-width: 560px) {
+    #cc-mock .win { height: 540px; }
+    #cc-mock .split { grid-template-columns: 38% minmax(0, 1fr); }
+    #cc-mock .ttx { font-size: 11px; -webkit-line-clamp: 2; }
+    #cc-mock .txt, #cc-mock .a { font-size: 11px; }
+    #cc-mock .pane { padding: 10px 12px 20px; }
+    #cc-mock .u p { font-size: 11.5px; }
+  }
+</style>
+
+<script>
+(function () {
+  var root = document.getElementById('cc-mock');
+  if (!root) return;
+  var pane = root.querySelector('.pane');
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('.t'));
+  var turns = Array.prototype.slice.call(root.querySelectorAll('.turn'));
+  if (!pane || !tabs.length || !turns.length) return;
+
+  var lane = root.querySelector('.lane');
+
+  function followActive(el) {
+    if (!lane || !el) return;
+    var head = lane.querySelector('.lane-hd');
+    var inset = head ? head.offsetHeight : 0;
+    var lr = lane.getBoundingClientRect();
+    var er = el.getBoundingClientRect();
+    var top = er.top - lr.top + lane.scrollTop;
+    var bottom = top + er.height;
+    if (top - 6 < lane.scrollTop + inset) {
+      lane.scrollTop = Math.max(0, top - inset - 6);
+    } else if (bottom + 6 > lane.scrollTop + lane.clientHeight) {
+      lane.scrollTop = bottom - lane.clientHeight + 6;
+    }
+  }
+
+  function activate(turn) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-turn') === turn;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) followActive(t);
+    });
+    turns.forEach(function (s) {
+      s.classList.toggle('is-target', s.getAttribute('data-turn') === turn);
+    });
+  }
+
+  function jump(turn) {
+    var target = null;
+    turns.forEach(function (s) {
+      if (s.getAttribute('data-turn') === turn) target = s;
+    });
+    if (!target) return;
+    pane.scrollTop = target.offsetTop - 8;
+    activate(turn);
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { jump(t.getAttribute('data-turn')); });
+  });
+
+  function syncFromScroll() {
+    var y = pane.scrollTop + 40;
+    var current = turns[0].getAttribute('data-turn');
+    turns.forEach(function (s) {
+      if (s.offsetTop <= y) current = s.getAttribute('data-turn');
+    });
+    activate(current);
+  }
+
+  pane.addEventListener('scroll', syncFromScroll, { passive: true });
+
+  activate(turns[0].getAttribute('data-turn'));
+})();
+</script>

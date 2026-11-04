@@ -1,0 +1,51 @@
+{
+  "name": "dsh-chat-lanes",
+  "version": "0.1.0",
+  "description": "DSH Chat Lanes — 把对话窗口切成两列：我的话常驻左栏，模型的话在右侧流动",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-session"
+      ]
+    }
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "chat",
+    "layout"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "node --check lib/client.js && node --check index.js",
+    "test": "node --test \"test/*.test.js\"",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include=\"lib/**/*.js\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/*.test.js\""
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

@@ -1,0 +1,4 @@
+# dsh-chat-lanes bundle patch
+- insert:
+    - id: chat-lanes
+      name: 'dsh-chat-lanes'
