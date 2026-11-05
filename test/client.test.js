@@ -1131,3 +1131,34 @@ test("搜索：只有轮次外壳、行挂在外壳外面时，就滚到外壳�
   assert.equal(w.getScroll(), 700 - 100 - 12);
   assert.equal(w.doc.querySelector(".cln-note"), null);
 });
+
+test("左栏与行头复制都不带宿主塞进来的时间戳", async () => {
+  const rows = [
+    // 宿主会把时间挂在『我的话』这一行里，整块就是一个独立元素
+    { kind: "user", text: "第 1 轮的问题", anchor: "chat-anchor-1", turn: "1", meta: "11月4日 13:00" },
+    { kind: "assistant-step", text: "第 1 轮的回复" },
+    // 正文里正常提到的时间不能被当成元信息剥掉
+    { kind: "user", text: "每天 15:30 跑一次", anchor: "chat-anchor-2", turn: "2", meta: "今天 09:12" },
+    { kind: "assistant-step", text: "第 2 轮的回复" }
+  ];
+  const w = await createWorld({ rows });
+  await w.mount();
+
+  const ids = Array.from(w.doc.querySelectorAll("[data-cln-id]")).map((el) => el.getAttribute("data-cln-id"));
+  assert.deepEqual(ids, ["chat-anchor-1", "chat-anchor-2"]);
+
+  const heads = w.doc.querySelectorAll(".cln-rhead");
+  assert.equal(heads[0].__cln.body.textContent, "第 1 轮的问题");
+  assert.equal(heads[1].__cln.body.textContent, "每天 15:30 跑一次");
+});
+
+test("扫描：时间戳被隐藏、innerText 里本来就没有它时不乱删正文", async () => {
+  const rows = [
+    { kind: "user", text: "13:00 开会", anchor: "chat-anchor-1", turn: "1", meta: "11月4日 13:00", metaHidden: true },
+    { kind: "assistant-step", text: "第 1 轮的回复" }
+  ];
+  const w = await createWorld({ rows });
+  await w.mount();
+  // innerText 里没有那段时间，正文里的 13:00 必须原样保留
+  assert.equal(w.doc.querySelector(".cln-rhead").__cln.body.textContent, "13:00 开会");
+});

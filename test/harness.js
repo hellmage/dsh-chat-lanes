@@ -224,6 +224,17 @@ export async function createWorld(options = {}) {
       inner.textContent = text;
     }
     el.appendChild(inner);
+    if (spec.meta) {
+      // 宿主在『我的话』那一行里塞的时间戳：整块独立元素，纯时间
+      const meta = doc.createElement("span");
+      meta.className = "mt";
+      meta.textContent = spec.meta;
+      el.appendChild(meta);
+    }
+    if (spec.metaHidden) {
+      // 真 innerText 会跳过 display:none 的内容，这里手工模拟同样的结果
+      Object.defineProperty(el, "innerText", { configurable: true, value: text });
+    }
     (turnHost || centerWrap || host).appendChild(el);
     live.rowIndex.set(el, i);
     rowEls.push(el);

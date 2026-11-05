@@ -57,7 +57,7 @@ Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一
 
 ```bash
 npm run check      # 语法检查
-npm test           # 103 条行为测试（约 1 秒）
+npm test           # 105 条行为测试（约 1 秒）
 npm run coverage   # 带 100% 阈值门禁，覆盖率不达标直接 exit 1
 ```
 
@@ -132,6 +132,7 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 - **行头配色用 `--dsw-alias-state-success-primary` 的浅色混合**（15% 底 / 76% 字），深浅色主题都能看。
 - **展开的面板只开一个，点外面就收**：`openHead` 记住当前打开的那一枚；`document` 上挂 capture 阶段的 `click`，目标不在 `openHead` 里就 `closeHead()`（连同"已复制"的图标状态一起复位）。开另一轮时会先收掉前一枚。
 - **复制是一枚右上角小图标，不是按钮**：`.cln-rc` 用两个伪元素画叠起来的小方块（不引外部图标包、不吃字形），复制成功加 `.ok` 变绿 —— 不用定时器复位，下次收起/重开时清掉，省掉一个"卸载时还要 clearTimeout"的分支。
+- **宿主塞进来的时间戳要剥掉**：『我的话』那一行里除了正文还有一个时间元素（例如 `11月4日 13:00`），它是独立元素、整块就是时间。`cleanText()` 只剥"text 内容完整匹配时间/日期格式"的子元素（`META_ONLY`），而且是从行文本里**最后一次出现**的位置删掉；正文里正常提到 `15:30` 不会被删（那个元素不是纯时间）。真 innerText 会跳过 `display:none` 的内容，那种情况这个元素本来就不在行文本里，`at === -1` 直接跳过。
 - **我的话在宿主 DOM 里是被隐藏的行**（插件用 CSS `display:none` 收起来），左栏是它们的唯一入口；所以跳转目标取"其后的第一条非 user 行"，落在模型回复上。
 - **左栏跟随**：`active` 变化时把该条滚进左栏可视区（`list.scrollTop` 加减 8px 边距）。
 - **正文留白**：宿主把正文包在 `max-width + 居中` 的容器里；左栏占走宽度后它会在新宽度里重新居中，凭空多出一大块左边距。`fitWrappers()` 在每次布局时把「比容器窄 48px 以上」的那几层包裹的 `max-width`/左右 `margin` 摊平（inline style，宿主重建节点后靠 tick 重新补）。测试：「留白：正文被宿主的 max-width 居中包裹时，包裹被摊平」。
