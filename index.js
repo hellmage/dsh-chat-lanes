@@ -9,5 +9,7 @@ export const name = "dsh-chat-lanes";
 export const inject = ["webServer", "sessionQuery"];
 
 export function apply(ctx) {
-  registerSearch(ctx);
+  // 必须走 ctx.effect：插件被停用/重载时要回收这条路由，
+  // 否则再启用会撞上 "duplicate exact route"（webServer 按 (kind, path) 去重）。
+  ctx.effect(() => registerSearch(ctx));
 }
