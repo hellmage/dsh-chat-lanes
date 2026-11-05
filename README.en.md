@@ -6,6 +6,8 @@ Splits the DSH conversation window into two columns: **everything I said stays p
 
 In a DSH conversation I speak rarely and the model talks a lot, so my messages end up buried between screen after screen of tool calls and long replies and are hard to find. This plugin pulls "what I said" out into a narrow persistent rail on the left and leaves only the model/tool flow in the main column — one glance left, and you know what you asked.
 
+![Every message I sent in this conversation lives in the left rail; the right side keeps only the model and tool flow](docs/screenshot.png)
+
 ## What it does
 
 - **Left rail**: every message I sent in this conversation, one line each, labelled "turn N"; clicking any of them scrolls the reply side to the start of that turn's answer, and scrolling the reply side highlights the current entry and scrolls it into view inside the rail.
@@ -59,6 +61,7 @@ cordis.patch.yml    bundle declaration
 test/harness.js     jsdom world + fake host
 test/*.test.js      behaviour tests for the client and host halves
 design/             the original three-way design comparison; reference only, not built
+docs/               the screenshot used in the README
 ```
 
 ## Known limitations
