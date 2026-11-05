@@ -516,3 +516,24 @@ test("registerSearch: works when no default model service is mounted", async () 
   );
   assert.equal(JSON.parse(res.body).hits.length, 0);
 });
+
+test("registerSearch: webServer 没注入时直接抛错，不要静默不注册", () => {
+  assert.throws(
+    () => registerSearch({ get: () => undefined, webServer: undefined }),
+    /webServer 服务不可用/
+  );
+});
+
+test("registerSearch: 正常把 exact 路由注册到 /api/hellmage/dsh-chat-lanes/search", () => {
+  const calls = [];
+  const off = () => {};
+  const ctx = {
+    get: (name) => (name === "webServer" ? { register: (opts) => { calls.push(opts); return off; } } : undefined),
+    webServer: { register: (opts) => { calls.push(opts); return off; } }
+  };
+  assert.equal(registerSearch(ctx), off);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].kind, "exact");
+  assert.equal(calls[0].path, "/api/hellmage/dsh-chat-lanes/search");
+  assert.equal(typeof calls[0].handler, "function");
+});
