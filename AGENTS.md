@@ -57,7 +57,7 @@ Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一
 
 ```bash
 npm run check      # 语法检查
-npm test           # 89 条行为测试（约 1 秒）
+npm test           # 90 条行为测试（约 1 秒）
 npm run coverage   # 带 100% 阈值门禁，覆盖率不达标直接 exit 1
 ```
 
