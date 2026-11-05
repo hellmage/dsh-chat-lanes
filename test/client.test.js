@@ -896,3 +896,24 @@ test("搜索：慢回来的旧结果不覆盖新查询", async () => {
   await w2.flush();
   assert.match(w2.doc.querySelector(".cln-hit .s").textContent, /第二次/);
 });
+
+test("搜索：路由没挂上（404 拿到 HTML）时说清楚要重启，而不是笼统报网络错误", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    status: 404,
+    json: () => Promise.reject(new SyntaxError("Unexpected token <"))
+  });
+  await w.mount();
+  await w.flush(() => setQuery(w, "手续费"));
+  w.runTimeout();
+  await w.flush();
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "搜索服务没启动，重启 DSH 之后再来");
+
+  const w2 = await createWorld();
+  w2.win.fetch = () => Promise.resolve({ status: 502, json: () => Promise.reject(new SyntaxError("bad gateway")) });
+  await w2.mount();
+  await w2.flush(() => setQuery(w2, "手续费"));
+  w2.runTimeout();
+  await w2.flush();
+  assert.equal(w2.doc.querySelector(".cln-note").textContent, "搜索服务返回了 502");
+});
