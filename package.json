@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "DSH Chat Lanes — 把对话窗口切成两列：我的话常驻左栏，模型的话在右侧流动",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hellmage/dsh-chat-lanes.git"
+  },
+  "homepage": "https://github.com/hellmage/dsh-chat-lanes#readme",
+  "bugs": {
+    "url": "https://github.com/hellmage/dsh-chat-lanes/issues"
+  },
   "main": "index.js",
   "exports": {
     ".": "./index.js",
