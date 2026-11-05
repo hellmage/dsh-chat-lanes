@@ -800,7 +800,7 @@ test("搜索：键入后清空，回到时间轴且不发请求", async () => {
   assert.equal(w.doc.querySelectorAll(".cln-t").length, 12);
 });
 
-test("搜索：会话外壳在但没有 id 属性时，当成换了一个会话、把搜索清掉", async () => {
+test("搜索：会话外壳在但没有 id 属性时，当成换了一个会话（它是空白的）", async () => {
   const w = await createWorld();
   fakeFetch(w, { ok: true, hits: HITS });
   await w.mount();
@@ -817,27 +817,62 @@ test("搜索：会话外壳在但没有 id 属性时，当成换了一个会话�
   assert.equal(w.doc.querySelectorAll(".cln-t").length, 12);
 });
 
-test("搜索：切换会话时清空搜索框与结果", async () => {
+test("搜索：切走再切回来，搜索词和结果都还在", async () => {
   const w = await createWorld();
   fakeFetch(w, { ok: true, hits: HITS });
   await w.mount();
 
-  await w.flush(() => setQuery(w, "手续费"));
-  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
-  await w.flush();
+  await w.enter("手续费");
   assert.equal(w.doc.querySelectorAll(".cln-hit").length, 2);
 
-  // 换会话：宿主把 data-conversation-session 换掉，重扫必须把搜索清空
   const holder = w.doc.querySelector("[data-conversation-session]");
-  holder.setAttribute("data-conversation-session", "s2");
-  await w.flush(() => w.doc.querySelector("[data-conversation-scroll]").appendChild(w.doc.createElement("div")));
+  const other = (id) => { holder.setAttribute("data-conversation-session", id); return w.flush(() => w.doc.querySelector("[data-conversation-scroll]").appendChild(w.doc.createElement("div"))); };
+
+  // 切到另一个会话：它是空白的
+  await other("s2");
   w.runTimeout();
   await w.flush();
-
   assert.equal(w.doc.querySelector(".cln-q").value, "");
   assert.equal(w.doc.querySelectorAll(".cln-hit").length, 0);
-  assert.equal(w.doc.querySelectorAll(".cln-t").length, 12);
+
+  // 切回 s1：词和结果都回来
+  await other("s1");
+  w.runTimeout();
+  await w.flush();
+  assert.equal(w.doc.querySelector(".cln-q").value, "手续费");
+  assert.equal(w.doc.querySelectorAll(".cln-hit").length, 2);
 });
+
+test("搜索：两个会话各记各的，互不覆盖", async () => {
+  const w = await createWorld();
+  fakeFetch(w, { ok: true, hits: HITS });
+  await w.mount();
+
+  const holder = w.doc.querySelector("[data-conversation-session]");
+  const other = (id) => { holder.setAttribute("data-conversation-session", id); return w.flush(() => w.doc.querySelector("[data-conversation-scroll]").appendChild(w.doc.createElement("div"))); };
+
+  await w.enter("手续费");
+  await other("s2");
+  w.runTimeout();
+  await w.flush();
+  // 第二个会话里只打字、不回车
+  await w.flush(() => setQuery(w, "口径"));
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "按回车搜索");
+
+  await other("s1");
+  w.runTimeout();
+  await w.flush();
+  assert.equal(w.doc.querySelector(".cln-q").value, "手续费");
+  assert.equal(w.doc.querySelectorAll(".cln-hit").length, 2);
+
+  await other("s2");
+  w.runTimeout();
+  await w.flush();
+  // 切回 s2：只打了一半没搜的词也要在
+  assert.equal(w.doc.querySelector(".cln-q").value, "口径");
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "按回车搜索");
+});
+
 
 test("搜索：没有会话 id、后端报错、网络失败、空结果，各说各的", async () => {
   const bare = await createWorld({ bareScope: true });

@@ -92,9 +92,11 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 - 入口：左栏表头那个常驻输入框（`搜这个会话…`）。空查询时下面还是时间轴。
 - 触发：**只认回车**（少于 2 字不问）；打字只更新输入框、发请求前显示「按回车搜索」；Esc 清空回时间轴。
   曾经做过"停 600ms 自动问"，用户明确否掉了 —— 每敲一个字就起一次 2.5 秒的模型调用，既慢又贵。
-- 状态按会话隔离：重扫时比较 `data-conversation-session`，变了一切（输入框文字、结果、错误）全清空。
-  用户的要求是"每个会话保存自己的搜索框内容"，当前实现是**切走即重置**（最简形态），
-  真要"切回来还在"，得把 `q` 存进按 sessionId 索引的 Map 里，并在重扫时回填。
+- 状态按会话隔离：重扫时比较 `data-conversation-session`，变化时把离开的那个会话的
+  `{q, hits, busy, error, asked}` 存进 `bySession`（Map，sessionId → 状态），再把目标会话的状态恢复出来。
+  用户要的是"切回来还是上次那个词"，所以是恢复不是清空；没搜过的会话恢复成空。
+  恢复时 `busy` 一律置 false（上一个会话挂着的"正在理解…"不属于这个视图），但只打了一半、
+  还没回车的那句话要留着 —— 所以 `asked` 也得存。
 - Host 半（`lib/host.js`）：`POST /api/hellmage/dsh-chat-lanes/search`，body `{sessionId, query}`。
   1. **扩词**：让模型把问题改写成 3–4 句"对话里可能出现的陈述"，抽成 `terms`（≤10 个）。
      实测：原查询直接字面检索命中率接近 0，同义词扩词几乎没用，改写成句再抽词才有效。
