@@ -266,8 +266,26 @@ export async function createWorld(options = {}) {
     register(desc, factory) { slots.registered.push({ desc, factory }); return { dispose() {} }; }
   };
   const effects = [];
+  const loads = [];
+  const sessions = {
+    loads,
+    binding(id) {
+      return {
+        session: {
+          loadThrough(seq) {
+            loads.push({ id: id, seq: seq });
+            return options.loadThrough ? options.loadThrough(id, seq) : Promise.resolve();
+          }
+        }
+      };
+    }
+  };
   const ctx = {
-    get: options.getOverride || ((name) => (name === "slots" ? slots : undefined)),
+    get: options.getOverride || ((name) => {
+      if (name === "slots") return slots;
+      if (name === "sessions") return options.noSessions ? undefined : sessions;
+      return undefined;
+    }),
     effect(fn) { effects.push(fn()); }
   };
 
@@ -280,7 +298,7 @@ export async function createWorld(options = {}) {
 
   return {
     win, doc, scope: live.scope, rows: rowEls, composer: composerEl, centerWrap,
-    commonjs, slots, ctx, effects, container, timers, scopeEl: live.scope,
+    commonjs, slots, ctx, effects, container, timers, scopeEl: live.scope, sessions, loads,
     setScroll(y) { if (live.scope) live.scrollTops.set(live.scope, y); },
     // 换掉滚动容器（模拟切会话时宿主的节点替换）：新节点接管布局替身与行索引
     reattach(el) {

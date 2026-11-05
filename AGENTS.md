@@ -57,7 +57,7 @@ Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一
 
 ```bash
 npm run check      # 语法检查
-npm test           # 90 条行为测试（约 1 秒）
+npm test           # 97 条行为测试（约 1 秒）
 npm run coverage   # 带 100% 阈值门禁，覆盖率不达标直接 exit 1
 ```
 
@@ -108,6 +108,8 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 - 延迟预算：改写 0.8–1.2s + 召回 0.1s + 重排 1.2–2s ≈ 2.5s，所以必须"回车才触发"，不能按键就发。
 - 没有 embedding：宿主 `llm` 服务只有 `stream()`，没有向量接口。要把召回换成向量检索，
   只需要替换 `runSearch` 里的召回这一层（`searchEvents` → cosine top-k），其余不动。
+
+- **点结果要能落到那一轮**：长会话的 DOM 里只有最近几轮，搜索结果却可能是几十轮以前的。点之前先 `findTurn()`；没有就 `ctx.get("sessions").binding(sessionId).session.loadThrough(hit.seq)` 让宿主翻日志，再用 `waitForTurn()`（80ms × 40 次）等它渲染，然后 `scrollToRow()`。翻不到、没有绑定、翻失败，都只改一行提示（`.cln-note`），不要动结果列表 —— 用户要能接着点别的。
 
 ## 已知行为（改之前先确认不是有意为之）
 

@@ -908,7 +908,7 @@ test("搜索：没有会话 id、后端报错、网络失败、空结果，各�
 });
 
 test("搜索：点一个还没载入的轮次，直说没载入", async () => {
-  const w = await createWorld();
+  const w = await createWorld({ noSessions: true });
   fakeFetch(w, { ok: true, hits: [{ turn: 99, seq: 900, snippet: "很远的一轮", why: "" }] });
   await w.mount();
   await w.enter("手续费");
@@ -967,4 +967,73 @@ test("搜索：路由没挂上（404 拿到 HTML）时说清楚要重启，而�
   await w2.mount();
   await w2.enter("手续费");
   assert.equal(w2.doc.querySelector(".cln-note").textContent, "搜索服务返回了 502");
+});
+
+test("搜索：点没载入的轮次，先让宿主翻到那一轮，再滚过去", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 23, seq: 641, snippet: "旧的 basline", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("baseline");
+  await w.flush(() => w.doc.querySelector(".cln-hit").click());
+
+  // 这一轮还不在 DOM 里：请求翻日志，而不是直接报错
+  assert.deepEqual(w.loads, [{ id: "s1", seq: 641 }]);
+  assert.match(w.doc.querySelector(".cln-note").textContent, /正在翻日志/);
+
+  // 宿主把那一轮渲染出来之后，轮询接管：清掉提示并滚过去
+  const turn = w.doc.createElement("div");
+  turn.setAttribute("data-chat-turn", "23");
+  const row = w.doc.createElement("div");
+  row.setAttribute("data-chat-flow-kind", "assistant-step");
+  turn.appendChild(row);
+  row.getBoundingClientRect = () => ({ top: 900, bottom: 940 });
+  w.scope.appendChild(turn);
+  while (w.doc.querySelector(".cln-note")) {
+    if (!w.runTimeout()) break;
+    await w.flush();
+  }
+  assert.equal(w.doc.querySelector(".cln-note"), null);
+  assert.equal(w.getScroll(), 900 - 100 - 12);
+});
+
+test("搜索：翻完日志还是没有那一轮，就直说没载入", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 23, seq: 641, snippet: "旧的", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("baseline");
+  await w.flush(() => w.doc.querySelector(".cln-hit").click());
+  assert.deepEqual(w.loads.map((l) => l.seq), [641]);
+  for (let i = 0; i < 41; i += 1) {
+    await w.flush(() => w.runTimeout());
+  }
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "第 23 轮还没载入");
+});
+
+test("搜索：拿不到会话绑定（没有 sessions 服务）时不去翻日志", async () => {
+  const w = await createWorld({ noSessions: true });
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 23, seq: 641, snippet: "旧的", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("baseline");
+  await w.flush(() => w.doc.querySelector(".cln-hit").click());
+  assert.deepEqual(w.loads, []);
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "第 23 轮还没载入");
+});
+
+test("搜索：翻日志失败也说明白", async () => {
+  const w = await createWorld({ loadThrough: () => Promise.reject(new Error("host gone")) });
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 23, seq: 641, snippet: "旧的", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("baseline");
+  await w.flush(() => w.doc.querySelector(".cln-hit").click());
+  await new Promise((r) => setTimeout(r, 0));
+  await w.flush();
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "第 23 轮还没载入");
 });
