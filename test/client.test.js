@@ -758,9 +758,9 @@ test("搜索：只打字不发请求，回车才问；结果显示轮次与理�
   assert.equal(hits[0].querySelector(".w").textContent, "这一轮给了口径");
   assert.equal(hits[1].querySelector(".w"), null);
 
-  // 点第 3 轮：轮次外壳里的第一行在 4*ROW_H 处
+  // 点第 3 轮：落在它的回复行上（第 3 轮的第一行是"我的话"，被收起来了，不能滚它）
   await w.click(hits[0]);
-  assert.equal(w.getScroll(), 4 * ROW_H - 12);
+  assert.equal(w.getScroll(), 5 * ROW_H - 12);
 });
 
 test("搜索：回车立刻问，少于两个字不发；Esc 清空回到时间轴", async () => {
@@ -1075,4 +1075,59 @@ test("搜索：对话容器被摘掉之后点结果，退回旧节点也不会�
   await w.flush();
   assert.match(w.doc.querySelector(".cln-note").textContent, /正在翻日志/);
   assert.deepEqual(w.loads.map((l) => l.seq), [641]);
+});
+
+test("搜索：轮次外壳在、但里面只有被收起来的『我的话』时，不崩也不乱滚", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 40, seq: 801, snippet: "第四十轮", why: "" }] })
+  });
+  await w.mount();
+  const before = w.getScroll();
+  // 造一个只有 user 行的轮次外壳
+  const turn = w.doc.createElement("div");
+  turn.setAttribute("data-chat-turn", "40");
+  const row = w.doc.createElement("div");
+  row.setAttribute("data-chat-flow-kind", "user");
+  turn.appendChild(row);
+  row.getBoundingClientRect = () => ({ top: 1200, bottom: 1240 });
+  w.scope.appendChild(turn);
+
+  await w.enter("第四十轮");
+  await w.flush(() => w.doc.querySelectorAll(".cln-hit")[0].click());
+  assert.equal(w.getScroll(), before);
+  assert.match(w.doc.querySelector(".cln-note").textContent, /正在翻日志/);
+  assert.deepEqual(w.loads.map((l) => l.seq), [801]);
+});
+
+test("搜索：轮次外壳里一行都没有（宿主换页换到一半）也不崩", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 41, seq: 811, snippet: "第四十一轮", why: "" }] })
+  });
+  await w.mount();
+  const turn = w.doc.createElement("div");
+  turn.setAttribute("data-chat-turn", "41");
+  w.scope.appendChild(turn);
+
+  await w.enter("第四十一");
+  await w.flush(() => w.doc.querySelectorAll(".cln-hit")[0].click());
+  assert.match(w.doc.querySelector(".cln-note").textContent, /正在翻日志/);
+});
+
+test("搜索：只有轮次外壳、行挂在外壳外面时，就滚到外壳本身", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 77, seq: 1501, snippet: "外壳", why: "" }] })
+  });
+  await w.mount();
+  const turn = w.doc.createElement("div");
+  turn.setAttribute("data-chat-turn", "77");
+  turn.getBoundingClientRect = () => ({ top: 700, bottom: 760, height: 60, width: 600 });
+  w.scope.appendChild(turn);
+
+  await w.enter("外壳");
+  await w.flush(() => w.doc.querySelectorAll(".cln-hit")[0].click());
+  assert.equal(w.getScroll(), 700 - 100 - 12);
+  assert.equal(w.doc.querySelector(".cln-note"), null);
 });

@@ -57,7 +57,7 @@ Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一
 
 ```bash
 npm run check      # 语法检查
-npm test           # 97 条行为测试（约 1 秒）
+npm test           # 103 条行为测试（约 1 秒）
 npm run coverage   # 带 100% 阈值门禁，覆盖率不达标直接 exit 1
 ```
 
@@ -109,7 +109,7 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 - 没有 embedding：宿主 `llm` 服务只有 `stream()`，没有向量接口。要把召回换成向量检索，
   只需要替换 `runSearch` 里的召回这一层（`searchEvents` → cosine top-k），其余不动。
 
-- **点结果要能落到那一轮**：长会话的 DOM 里只有最近几轮，搜索结果却可能是几十轮以前的。点之前先 `findIn()`；没有就 `ctx.get("sessions").binding(sessionId).session.loadThrough(hit.seq)` 让宿主翻日志，再用 `waitForTurn()`（80ms × 40 次）等它渲染，然后 `scrollToRow()`。翻不到、没有绑定、翻失败，都只改一行提示（`.cln-note`），不要动结果列表 —— 用户要能接着点别的。
+- **点结果要能落到那一轮**：长会话的 DOM 里只有最近几轮，搜索结果却可能是几十轮以前的。目标行用 `targetOfTurn(turn)` 定：先 `rowOfTurn()` 按"行→`closest([data-chat-turn])`"反查出这一轮里**第一条不是 user/steering** 的行（轮次外壳里的第一行往往是我的话，被 `display:none` 收起来了，rect 是 0×0，拿它去滚等于滚到顶）；没有这样的行就退回外壳本身，但只在外壳 `height > 0` 时才算数，否则当它不在。之前直接 `turnEl.querySelector(SEL.ROW)` 拿到 null 会让 `scrollToRow` 抛 `Cannot read properties of null`。没有就 `ctx.get("sessions").binding(sessionId).session.loadThrough(hit.seq)` 让宿主翻日志，再用 `waitForTurn()`（80ms × 40 次）等它渲染，然后 `scrollToRow()`。翻不到、没有绑定、翻失败，都只改一行提示（`.cln-note`），不要动结果列表 —— 用户要能接着点别的。
 - **跳转里三个"别信缓存"**（2026-11-05 用户报"只有第一条能跳"）：
   1. **滚动容器每次现取**：`liveScope()` = `scopeRoot() || scopeRef.current`。宿主翻日志时会换掉 `[data-conversation-scroll]` 节点，缓存的那份上面 `querySelector`/`scrollTop` 全是空转（这正是"第一条能跳、后面都不动"）。
   2. **会话 id 用 `ask()` 当时记下的** `askedSession.current`，不要再从 DOM 里 `closest("[data-conversation-session]")` 找一个可能已经被换掉的壳。
