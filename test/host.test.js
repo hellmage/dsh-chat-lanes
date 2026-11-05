@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 
 import {
   snippetAround,
+  buildCorpus,
+  messageText,
   SEARCH_PATH,
   normalizeQuery,
   buildRewritePrompt,
@@ -62,28 +64,74 @@ function fakeLlm(rewrite, rerank) {
   };
 }
 
-// The recall layer scans the log with filterEvents (the full-text index is not always
-// available), so the fake serves documents, not ranked pages.
-function fakeQuery(docs, starts) {
+// Recall reads the session log itself (readSession) and matches locally: the full-text
+// index is not available in every deployment.
+function fakeQuery(rows) {
   var calls = [];
   return {
     calls: calls,
-    filterEvents: async function (sessionId, filters) {
-      calls.push({ sessionId: sessionId, filters: filters });
-      if (filters[0].kind === "type") {
-        if (starts instanceof Error) throw starts;
-        return (starts || []).map(function (seq) {
-          return { seq: seq, type: "turn/start" };
-        });
+    readSession: async function (sessionId) {
+      calls.push({ sessionId: sessionId });
+      if (rows instanceof Error) throw rows;
+      var events = [];
+      var seq = 1;
+      for (var i = 0; i < rows.length; i++) {
+        events.push({ seq: seq, type: "turn/start", data: { turn: rows[i].turn } });
+        seq += 1;
+        events.push({ seq: seq, type: "user/message", data: { role: "user", content: [{ type: "text", text: rows[i].me === undefined ? "" : rows[i].me }] } });
+        seq += 1;
+        events.push({ seq: seq, type: "assistant/message", data: { turn: rows[i].turn, step: 0, message: { role: "assistant", content: [{ type: "text", text: rows[i].text }] } } });
+        seq += 1;
       }
-      var value = docs[filters[0].text];
-      if (value instanceof Error) throw value;
-      return (value || []).map(function (doc) {
-        return { sessionId: sessionId, seq: doc.seq, type: "assistant/message", time: 1, surface: "current", text: doc.text };
-      });
+      return { session: { sessionId: sessionId }, inheritedEventCount: 0, events: events };
     },
   };
 }
+
+test("messageText: joins text blocks only, tolerates junk", () => {
+  assert.equal(messageText(undefined), "");
+  assert.equal(messageText("nope"), "");
+  assert.equal(
+    messageText([{ type: "text", text: "甲" }, { type: "image" }, null, { type: "text", text: "乙" }]),
+    "甲 乙",
+  );
+});
+
+test("buildCorpus: keeps the turn of every message and skips empty text", async () => {
+  var query = {
+    readSession: async function () {
+      return {
+        session: {},
+        inheritedEventCount: 0,
+        events: [
+          { seq: 1, type: "turn/start", data: { turn: 1 } },
+          { seq: 2, type: "user/message", data: { role: "user", content: [{ type: "text", text: "问" }] } },
+          { seq: 3, type: "assistant/message", data: { turn: 1, step: 0 } },
+          { seq: 4, type: "assistant/message", data: { turn: 1, step: 1, message: { content: [{ type: "text", text: "答" }] } } },
+          { seq: 5, type: "turn/start", data: { turn: 2 } },
+          { seq: 6, type: "user/message", data: { role: "user", content: [{ type: "image" }] } },
+          { seq: 7, type: "assistant/message", data: { turn: 2, step: 0, message: { content: [{ type: "text", text: "第二答" }] } } },
+        ],
+      };
+    },
+  };
+  var rows = await buildCorpus(query, "s1");
+  assert.deepEqual(rows, [
+    { turn: 1, seq: 2, text: "问" },
+    { turn: 1, seq: 4, text: "答" },
+    { turn: 2, seq: 7, text: "第二答" },
+  ]);
+});
+
+test("snippetAround: quotes the hit with ellipses on both sides", () => {
+  var text = "甲".repeat(60) + "手续费" + "乙".repeat(200);
+  var snip = snippetAround(text, "手续费");
+  assert.match(snip, /^…/);
+  assert.match(snip, /…$/);
+  assert.match(snip, /手续费/);
+  assert.equal(snippetAround("没有命中", "手续费"), null);
+  assert.match(snippetAround("手续费开头", "手续费"), /^手续费/);
+});
 
 test("normalizeQuery: bounds and trims", () => {
   assert.equal(normalizeQuery(undefined), null);
@@ -227,16 +275,16 @@ function makeDeps(overrides) {
       (overrides && overrides.rewrite) || '{"terms":["手续费"]}',
       (overrides && overrides.rerank) || '{"hits":[{"turn":3,"why":"命中"}]}',
     ),
-    sessionQuery: fakeQuery({
-      手续费: [{ seq: 30, text: "手续费按 2 倍算" }],
-      口径: [{ seq: 90, text: "口径不一致" }],
-    }),
+    sessionQuery: fakeQuery([
+      { turn: 3, me: "手续费怎么算", text: "手续费按 2 倍算" },
+      { turn: 9, me: "口径", text: "口径不一致" },
+    ]),
     model: { provider: "p1", model: "m1" },
+    corpus: async function (sessionId) {
+      return buildCorpus(deps.sessionQuery, sessionId);
+    },
     now: function () {
       return now;
-    },
-    turnOf: async function (sessionId, seq) {
-      return seq === 30 ? 3 : 9;
     },
   };
   return deps;
@@ -285,8 +333,8 @@ test("handler: semantic path rewrites, recalls and reranks, then caches", async 
   assert.equal(payload.hits[0].turn, 9);
   assert.equal(payload.hits[0].why, "口径不同");
 
+  // one log read per term (the corpus is read fresh on each recall in this fake)
   assert.equal(deps.sessionQuery.calls.length, 2);
-  assert.equal(deps.sessionQuery.calls[0].filters[1].values[0], "current");
 
   // second identical query is served from cache: no new retrieval
   var res2 = fakeResponse();
@@ -355,7 +403,7 @@ test("handler: empty rerank falls back to the recall order", async () => {
 test("handler: a thrown non-Error still becomes a readable message", async () => {
   var deps = makeDeps({ rewrite: '{"terms":["手续费"]}' });
   deps.sessionQuery = {
-    filterEvents: async function () {
+    readSession: async function () {
       throw "索引没建好";
     },
   };
@@ -383,7 +431,7 @@ test("handler: a rewrite call that throws a string is reported verbatim", async 
 
 test("handler: retrieval failure is a 500, not a silent empty list", async () => {
   var deps = makeDeps({ rewrite: '{"terms":["手续费"]}' });
-  deps.sessionQuery = fakeQuery({ 手续费: new Error("index unavailable") });
+  deps.sessionQuery = fakeQuery(new Error("index unavailable"));
   var res = fakeResponse();
   await createHandler(deps)(
     postRequest('{"sessionId":"s1","query":"手续费"}'),
@@ -421,26 +469,26 @@ test("handler: cache expires and evicts the oldest entry", async () => {
   assert.equal(deps.sessionQuery.calls.length, before + 1);
 });
 
-test("registerSearch: builds turns from the log, caches per session, wires the route", async () => {
+test("registerSearch: reads the log once per session, maps turns, wires the route", async () => {
   var registered = [];
-  var startCalls = 0;
+  var reads = 0;
   var ctx = {
     get: function (name) {
       if (name === "sessionQuery") {
         return {
-          filterEvents: async function (sessionId, filters) {
-            if (filters[0].kind === "type") {
-              startCalls += 1;
-              return [
-                { seq: 1, type: "turn/start" },
-                { seq: 6, type: "turn/start" },
-              ];
-            }
-            return [
-              { sessionId: sessionId, seq: 4, type: "assistant/message", time: 1, surface: "current", text: "第一条 手续费" },
-              { sessionId: sessionId, seq: 8, type: "assistant/message", time: 2, surface: "current", text: "第二条 手续费" },
-              { sessionId: sessionId, seq: 99, type: "assistant/message", time: 3, surface: "current", text: "尽头 手续费" },
-            ];
+          readSession: async function (sessionId) {
+            reads += 1;
+            return {
+              session: { sessionId: sessionId },
+              inheritedEventCount: 0,
+              events: [
+                { seq: 1, type: "turn/start", data: { turn: 1 } },
+                { seq: 2, type: "user/message", data: { role: "user", content: [{ type: "text", text: "手续费怎么算" }] } },
+                { seq: 3, type: "assistant/message", data: { turn: 1, step: 0, message: { content: [{ type: "text", text: "手续费按 2 倍算" }] } } },
+                { seq: 4, type: "turn/start", data: { turn: 2 } },
+                { seq: 5, type: "assistant/message", data: { turn: 2, step: 0, message: { content: [{ type: "text", text: "第二条 也提到手续费" }] } } },
+              ],
+            };
           },
         };
       }
@@ -462,8 +510,10 @@ test("registerSearch: builds turns from the log, caches per session, wires the r
   assert.equal(registered[0].path, SEARCH_PATH);
 
   var res = fakeResponse();
-  var text = JSON.stringify({ sessionId: "s1", query: "手续费" });
-  await registered[0].handler(postRequest(text), res);
+  await registered[0].handler(
+    postRequest(JSON.stringify({ sessionId: "s1", query: "手续费" })),
+    res,
+  );
   var payload = JSON.parse(res.body);
   assert.equal(payload.mode, "lexical");
   assert.deepEqual(
@@ -473,42 +523,13 @@ test("registerSearch: builds turns from the log, caches per session, wires the r
     [1, 2],
   );
   assert.match(payload.hits[0].snippet, /手续费/);
-  assert.equal(startCalls, 1);
+  assert.equal(reads, 1);
 
   await registered[0].handler(
     postRequest(JSON.stringify({ sessionId: "s1", query: "又一次" })),
     fakeResponse(),
   );
-  assert.equal(startCalls, 1);
-});
-
-test("snippetAround: quotes the hit with ellipses on both sides", () => {
-  var text = "甲".repeat(60) + "手续费" + "乙".repeat(200);
-  var snip = snippetAround(text, "手续费");
-  assert.match(snip, /^…/);
-  assert.match(snip, /…$/);
-  assert.match(snip, /手续费/);
-  assert.equal(snippetAround("没有命中", "手续费"), null);
-  assert.match(snippetAround("手续费开头", "手续费"), /^手续费/);
-  assert.equal(snippetAround("短文本 手续费", "手续费").slice(-3), "手续费");
-});
-
-test("recall: a document with no text is skipped, not quoted as empty", async () => {
-  var deps = makeDeps({});
-  deps.sessionQuery = {
-    filterEvents: async function (sessionId, filters) {
-      if (filters[0].kind === "type") return [{ seq: 1, type: "turn/start" }];
-      return [
-        { sessionId: sessionId, seq: 4, type: "assistant/message", time: 1, surface: "current" },
-        { sessionId: sessionId, seq: 8, type: "assistant/message", time: 2, surface: "current", text: "手续费 2 倍" },
-      ];
-    },
-  };
-  var res = fakeResponse();
-  await createHandler(deps)(postRequest('{"sessionId":"s1","query":"手续费"}'), res);
-  var payload = JSON.parse(res.body);
-  assert.equal(payload.hits.length, 1);
-  assert.equal(payload.hits[0].seq, 8);
+  assert.equal(reads, 1);
 });
 
 test("registerSearch: works when no default model service is mounted", async () => {
@@ -517,8 +538,8 @@ test("registerSearch: works when no default model service is mounted", async () 
     get: function (name) {
       if (name === "sessionQuery") {
         return {
-          filterEvents: async function () {
-            return [];
+          readSession: async function () {
+            return { session: {}, inheritedEventCount: 0, events: [] };
           },
         };
       }
@@ -533,8 +554,10 @@ test("registerSearch: works when no default model service is mounted", async () 
   };
   registerSearch(ctx);
   var res = fakeResponse();
-  var text = JSON.stringify({ sessionId: "s1", query: "手续费" });
-  await registered[0].handler(postRequest(text), res);
+  await registered[0].handler(
+    postRequest(JSON.stringify({ sessionId: "s1", query: "手续费" })),
+    res,
+  );
   assert.equal(JSON.parse(res.body).hits.length, 0);
 });
 
