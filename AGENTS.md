@@ -109,7 +109,12 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 - 没有 embedding：宿主 `llm` 服务只有 `stream()`，没有向量接口。要把召回换成向量检索，
   只需要替换 `runSearch` 里的召回这一层（`searchEvents` → cosine top-k），其余不动。
 
-- **点结果要能落到那一轮**：长会话的 DOM 里只有最近几轮，搜索结果却可能是几十轮以前的。点之前先 `findTurn()`；没有就 `ctx.get("sessions").binding(sessionId).session.loadThrough(hit.seq)` 让宿主翻日志，再用 `waitForTurn()`（80ms × 40 次）等它渲染，然后 `scrollToRow()`。翻不到、没有绑定、翻失败，都只改一行提示（`.cln-note`），不要动结果列表 —— 用户要能接着点别的。
+- **点结果要能落到那一轮**：长会话的 DOM 里只有最近几轮，搜索结果却可能是几十轮以前的。点之前先 `findIn()`；没有就 `ctx.get("sessions").binding(sessionId).session.loadThrough(hit.seq)` 让宿主翻日志，再用 `waitForTurn()`（80ms × 40 次）等它渲染，然后 `scrollToRow()`。翻不到、没有绑定、翻失败，都只改一行提示（`.cln-note`），不要动结果列表 —— 用户要能接着点别的。
+- **跳转里三个"别信缓存"**（2026-11-05 用户报"只有第一条能跳"）：
+  1. **滚动容器每次现取**：`liveScope()` = `scopeRoot() || scopeRef.current`。宿主翻日志时会换掉 `[data-conversation-scroll]` 节点，缓存的那份上面 `querySelector`/`scrollTop` 全是空转（这正是"第一条能跳、后面都不动"）。
+  2. **会话 id 用 `ask()` 当时记下的** `askedSession.current`，不要再从 DOM 里 `closest("[data-conversation-session]")` 找一个可能已经被换掉的壳。
+  3. **轮次号统一成数字**：`entries[].turn` 原来存的是 `getAttribute` 的字符串，而命中里的 `turn` 是数字，`!==` 永远成立 → 高亮认领不上。现在 `buildEntries` 里 `Number(...)`，属性缺失记 0。
+- **命中列表也有"当前这条"**：`searchItems()` 里 `hit.turn === activeTurn` 的那条加 `on`（白底 + 左侧品牌色竖条），跟左栏 tab 同一套视觉；跳转成功后 `focusTurn(turn)` 把 `activeRef`/`active` 认领过去，所以滚到哪儿、亮点就跟到哪儿。
 
 ## 已知行为（改之前先确认不是有意为之）
 

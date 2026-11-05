@@ -1037,3 +1037,42 @@ test("搜索：翻日志失败也说明白", async () => {
   await w.flush();
   assert.equal(w.doc.querySelector(".cln-note").textContent, "第 23 轮还没载入");
 });
+
+test("搜索：跳到某一轮之后，左栏那一条就是当前（高亮跟着跳）", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 4, seq: 41, snippet: "第四轮", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("第四轮");
+  await w.flush(() => w.doc.querySelectorAll(".cln-hit")[0].click());
+  assert.equal(w.doc.querySelector(".cln-hit.on").getAttribute("data-cln-hit"), "4");
+});
+
+test("搜索：跳到的那一轮在左栏里没有对应条目时不硬点高亮", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 99, seq: 941, snippet: "九十九轮", why: "" }] })
+  });
+  await w.mount();
+  const before = w.doc.querySelector(".cln-t.on").getAttribute("data-cln-id");
+  await w.enter("九十九");
+  await w.flush(() => w.doc.querySelectorAll(".cln-hit")[0].click());
+  assert.equal(w.doc.querySelector(".cln-hit.on"), null);
+  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+  assert.equal(w.doc.querySelector(".cln-t.on").getAttribute("data-cln-id"), before);
+});
+
+test("搜索：对话容器被摘掉之后点结果，退回旧节点也不会炸", async () => {
+  const w = await createWorld();
+  w.win.fetch = () => Promise.resolve({
+    json: () => Promise.resolve({ ok: true, hits: [{ turn: 23, seq: 641, snippet: "旧的", why: "" }] })
+  });
+  await w.mount();
+  await w.enter("baseline");
+  w.scope.remove();
+  w.doc.querySelector(".cln-hit").click();
+  await w.flush();
+  assert.match(w.doc.querySelector(".cln-note").textContent, /正在翻日志/);
+  assert.deepEqual(w.loads.map((l) => l.seq), [641]);
+});
