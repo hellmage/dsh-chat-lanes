@@ -53,6 +53,18 @@ Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一
 
 8. **不接管 `conversation.chat.flow`。** 那是 single + `shadows-shipped-ui` 的槽，接管了就要自己重写滚动跟随、折叠动画、锚点恢复。我们要的东西一个常驻左栏 + 读宿主 `scrollTop` 就够了。
 
+9. **每次改动之后自动提交并推到 origin，不要攒在本地。**
+   一个改动做完（代码、测试、文档都算），就立刻提交并推送：
+   ```bash
+   npm run check && npm test        # 动了 lib/ 还必须 npm run coverage 全绿
+   git add <本次改动涉及的路径>      # 显式列路径，别用 git add -A 把无关文件一起卷进来
+   git commit -m "fix: 一句话说清症状与根因"
+   git push origin main
+   ```
+   - 提交信息沿用现有风格：`feat:` / `fix:` / `docs:` / `style:`；Host 半的路由与依赖注入用 `host:`，召回相关用 `recall:`。标题写"改了什么"，需要时在 body 里补"为什么"。
+   - 测试红了就别提交到 `main`：先修到全绿；确实修不动要停下来，明确告诉用户"没有提交，因为 X"。
+   - 远端拒绝（non-fast-forward）就 `git pull --rebase` 再来；任何情况下都不 `push --force`。
+
 ## 怎么跑
 
 ```bash
