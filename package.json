@@ -39,7 +39,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "check": "node --check lib/client.js && node --check index.js",
+    "check": "node --check lib/client.js && node --check lib/host.js && node --check index.js",
     "test": "node --test \"test/*.test.js\"",
     "coverage": "node --test --experimental-test-coverage --test-coverage-include=\"lib/**/*.js\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/*.test.js\""
   },

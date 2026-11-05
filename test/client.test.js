@@ -711,3 +711,188 @@ test("留白：包裹本来就占满容器时不去动它", async () => {
   await w.mount();
   assert.equal(w.centerWrap.style.maxWidth, "");
 });
+
+// ── 搜索：查询走 Host 半，结果点一下就跳 ──────────────────────────────
+const HITS = [
+  { turn: 3, seq: 40, snippet: "手续费按两倍算，所以 full-C 的门槛更高", why: "这一轮给了口径" },
+  { turn: 5, seq: 70, snippet: "max_bid 还卖出，是因为口径不一致", why: "" }
+];
+
+function setQuery(w, text) {
+  const input = w.doc.querySelector(".cln-q");
+  const setter = Object.getOwnPropertyDescriptor(w.win.HTMLInputElement.prototype, "value").set;
+  setter.call(input, text);
+  input.dispatchEvent(new w.win.Event("input", { bubbles: true }));
+  return input;
+}
+
+function fakeFetch(w, reply) {
+  const calls = [];
+  w.win.fetch = (url, init) => {
+    calls.push({ url, init });
+    return Promise.resolve({ json: () => Promise.resolve(reply) });
+  };
+  return calls;
+}
+
+test("搜索：停顿后自动发请求，结果显示轮次与理由，点一下跳过去", async () => {
+  const w = await createWorld();
+  const calls = fakeFetch(w, { ok: true, hits: HITS });
+  await w.mount();
+
+  await w.flush(() => setQuery(w, "手续费怎么算"));
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "正在理解…");
+  assert.equal(calls.length, 0); // 还没到 600ms
+
+  w.runTimeout();
+  await w.flush();
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "/api/hellmage/dsh-chat-lanes/search");
+  assert.deepEqual(JSON.parse(calls[0].init.body), { sessionId: "s1", query: "手续费怎么算" });
+
+  const hits = w.doc.querySelectorAll(".cln-hit");
+  assert.equal(hits.length, 2);
+  assert.equal(hits[0].querySelector(".h").textContent, "第 3 轮");
+  assert.match(hits[0].querySelector(".s").textContent, /手续费/);
+  assert.equal(hits[0].querySelector(".w").textContent, "这一轮给了口径");
+  assert.equal(hits[1].querySelector(".w"), null);
+
+  // 点第 3 轮：轮次外壳里的第一行在 4*ROW_H 处
+  await w.click(hits[0]);
+  assert.equal(w.getScroll(), 4 * ROW_H - 12);
+});
+
+test("搜索：回车立刻问，少于两个字不发；Esc 清空回到时间轴", async () => {
+  const w = await createWorld();
+  const calls = fakeFetch(w, { ok: true, hits: HITS });
+  await w.mount();
+
+  await w.flush(() => setQuery(w, "手"));
+  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+  assert.equal(calls.length, 0);
+
+  await w.flush(() => setQuery(w, "手续费"));
+  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+  assert.equal(calls.length, 1);
+  await w.flush();
+  assert.equal(w.doc.querySelectorAll(".cln-hit").length, 2);
+
+  // 别的键不管
+  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Tab", bubbles: true })));
+  assert.equal(calls.length, 1);
+
+  await w.flush(() => w.doc.querySelector(".cln-q").dispatchEvent(new w.win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+  assert.equal(w.doc.querySelectorAll(".cln-hit").length, 0);
+  assert.equal(w.doc.querySelectorAll(".cln-t").length, 12);
+});
+
+test("搜索：键入后立刻清空，定时器被取消，不再发请求", async () => {
+  const w = await createWorld();
+  const calls = fakeFetch(w, { ok: true, hits: HITS });
+  await w.mount();
+
+  await w.flush(() => setQuery(w, "手续费"));
+  await w.flush(() => setQuery(w, "  "));
+  // 清空后不该再有任何搜索请求（残留的定时器都是宿主那侧的），列表回到时间轴
+  w.runTimeout();
+  await w.flush();
+  assert.equal(calls.length, 0);
+  assert.equal(w.doc.querySelectorAll(".cln-t").length, 12);
+  assert.equal(w.doc.querySelector(".cln-q").value, "");
+});
+
+test("搜索：没有会话 id、后端报错、网络失败、空结果，各说各的", async () => {
+  const bare = await createWorld({ bareScope: true });
+  fakeFetch(bare, { ok: true, hits: HITS });
+  await bare.mount();
+  await bare.flush(() => setQuery(bare, "手续费"));
+  bare.runTimeout();
+  await bare.flush();
+  assert.equal(bare.doc.querySelector(".cln-note").textContent, "找不到会话 id");
+  assert.equal(bare.doc.querySelectorAll(".cln-hit").length, 0);
+
+  const failed = await createWorld();
+  fakeFetch(failed, { ok: false, error: "索引没建好" });
+  await failed.mount();
+  await failed.flush(() => setQuery(failed, "手续费"));
+  failed.runTimeout();
+  await failed.flush();
+  assert.equal(failed.doc.querySelector(".cln-note").textContent, "索引没建好");
+
+  const silent = await createWorld();
+  fakeFetch(silent, { ok: false });
+  await silent.mount();
+  await silent.flush(() => setQuery(silent, "手续费"));
+  silent.runTimeout();
+  await silent.flush();
+  assert.equal(silent.doc.querySelector(".cln-note").textContent, "检索失败");
+
+  const offline = await createWorld();
+  offline.win.fetch = () => Promise.reject(new Error("boom"));
+  await offline.mount();
+  await offline.flush(() => setQuery(offline, "手续费"));
+  offline.runTimeout();
+  await offline.flush();
+  assert.equal(offline.doc.querySelector(".cln-note").textContent, "网络错误");
+
+  const empty = await createWorld();
+  fakeFetch(empty, { ok: true, hits: [] });
+  await empty.mount();
+  await empty.flush(() => setQuery(empty, "手续费"));
+  empty.runTimeout();
+  await empty.flush();
+  assert.equal(empty.doc.querySelector(".cln-note").textContent, "没找到相关的轮次");
+});
+
+test("搜索：点一个还没载入的轮次，直说没载入", async () => {
+  const w = await createWorld();
+  fakeFetch(w, { ok: true, hits: [{ turn: 99, seq: 900, snippet: "很远的一轮", why: "" }] });
+  await w.mount();
+  await w.flush(() => setQuery(w, "手续费"));
+  w.runTimeout();
+  await w.flush();
+  await w.click(w.doc.querySelector(".cln-hit"));
+  assert.equal(w.doc.querySelector(".cln-note").textContent, "第 99 轮还没载入");
+  assert.equal(w.getScroll(), 0);
+});
+
+test("搜索：慢回来的旧结果不覆盖新查询", async () => {
+  const w = await createWorld();
+  let releaseFirst = null;
+  w.win.fetch = () => new Promise((resolve) => {
+    if (releaseFirst === null) releaseFirst = () => resolve({ json: () => Promise.resolve({ ok: true, hits: HITS }) });
+    else resolve({ json: () => Promise.resolve({ ok: true, hits: [{ turn: 5, seq: 70, snippet: "新查询的结果", why: "" }] }) });
+  });
+  await w.mount();
+
+  await w.flush(() => setQuery(w, "手续费"));
+  w.runTimeout();
+  await w.flush(() => setQuery(w, "口径"));
+  w.runTimeout();
+  await w.flush();
+  assert.match(w.doc.querySelector(".cln-hit .s").textContent, /新查询/);
+
+  // 第一次查询这时才回来：必须被丢掉
+  await w.flush(() => releaseFirst());
+  await new Promise((r) => setTimeout(r, 0));
+  await w.flush();
+  assert.match(w.doc.querySelector(".cln-hit .s").textContent, /新查询/);
+
+  // 迟到的失败同理
+  const w2 = await createWorld();
+  let rejectFirst = null;
+  w2.win.fetch = () => new Promise((resolve, reject) => {
+    if (rejectFirst === null) rejectFirst = () => reject(new Error("boom"));
+    else resolve({ json: () => Promise.resolve({ ok: true, hits: [{ turn: 5, seq: 70, snippet: "第二次", why: "" }] }) });
+  });
+  await w2.mount();
+  await w2.flush(() => setQuery(w2, "手续费"));
+  w2.runTimeout();
+  await w2.flush(() => setQuery(w2, "口径"));
+  w2.runTimeout();
+  await w2.flush();
+  await w2.flush(() => rejectFirst());
+  await new Promise((r) => setTimeout(r, 0));
+  await w2.flush();
+  assert.match(w2.doc.querySelector(".cln-hit .s").textContent, /第二次/);
+});

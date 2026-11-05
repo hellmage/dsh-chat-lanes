@@ -7,13 +7,18 @@
 `dsh-chat-lanes` 是一个 DSH 客户端插件：把对话窗口切成两列 —— 「我说的」常驻左栏（可点击跳转），模型的话在右侧单轴流动。它**不接管** `conversation.chat.flow`，只在宿主已经渲染好的 DOM 上加一层。
 
 ```
-index.js            Host 半：空实现（这个插件没有 Host 逻辑）
-lib/client.js       Client 半：注入样式 + 常驻左栏 + 读滚动 + 跳转（全部逻辑都在这）
+index.js            Host 半的入口：只调 lib/host.js 的 registerSearch(ctx)
+lib/host.js         Host 半：/api/hellmage/dsh-chat-lanes/search（扩词 → 召回 → 重排）
+lib/client.js       Client 半：注入样式 + 常驻左栏 + 搜索框 + 读滚动 + 跳转
 cordis.patch.yml    bundle 声明，把插件插进 profile
 test/harness.js     jsdom 世界 + 假宿主，约 300 行，是这个项目最贵的资产之一
-test/client.test.js 行为测试
-design/             设计稿（HTML 三方案对比），只作参考，不参与构建
+test/client.test.js 客户端行为测试
+test/host.test.js   Host 半测试（假 llm / 假 sessionQuery / 假 webServer）
+design/             设计稿（HTML 方案对比），只作参考，不参与构建
 ```
+
+两半的分工：Host 半跑在 Node 主进程（拿得到 `llm`、`sessionQuery`、`webServer`），
+Client 半跑在浏览器（拿得到 DOM、React、slot）。两者只通过一条同源 HTTP 路由通话。
 
 ## 硬规则
 
@@ -43,7 +48,10 @@ design/             设计稿（HTML 三方案对比），只作参考，不参�
 
 6. **样式只用 `--dsw-alias-*` 主题变量**（`bg-base`、`label-primary`、`brand-primary`、`border-l1..l4`、`state-*` 等），别写死颜色 —— 深浅色主题都要能看。
 
-7. **不接管 `conversation.chat.flow`。** 那是 single + `shadows-shipped-ui` 的槽，接管了就要自己重写滚动跟随、折叠动画、锚点恢复。我们要的东西一个常驻左栏 + 读宿主 `scrollTop` 就够了。
+7. **两半只通过 HTTP 路由通话。** Host 半 `webServer.register({kind:"exact", path, handler})`，
+   Client 半 `fetch` 同源路径；不要在客户端里 require 宿主服务，也不要把 Host 逻辑塞进 client.js。
+
+8. **不接管 `conversation.chat.flow`。** 那是 single + `shadows-shipped-ui` 的槽，接管了就要自己重写滚动跟随、折叠动画、锚点恢复。我们要的东西一个常驻左栏 + 读宿主 `scrollTop` 就够了。
 
 ## 怎么跑
 
@@ -78,6 +86,22 @@ plugin_manager set_plugin     target=include:chat-lanes enabled=false   # 停用
 ### 断言尽量断言"行为"，不要断言"实现"
 
 比如"点第 4 条，右侧滚到它对应的回复"——断言 `scope.scrollTop === 280 - 12`，而不是断言某个内部变量。这样重写实现时测试仍然有意义。
+
+## 搜索（v0.2）
+
+- 入口：左栏表头那个常驻输入框（`搜这个会话…`）。空查询时下面还是时间轴，一有输入就换成结果。
+- 触发：输入停 600ms 自动问；回车立即问（少于 2 字不问）；Esc 清空回时间轴。
+- Host 半（`lib/host.js`）：`POST /api/hellmage/dsh-chat-lanes/search`，body `{sessionId, query}`。
+  1. **扩词**：让模型把问题改写成 3–4 句"对话里可能出现的陈述"，抽成 `terms`（≤10 个）。
+     实测：原查询直接字面检索命中率接近 0，同义词扩词几乎没用，改写成句再抽词才有效。
+  2. **召回**：每个 term 调一次 `sessionQuery.searchEvents`，`mergeHits` 按"命中词数 → 名次和 → seq"排序取前 24。
+  3. **重排**：让模型从候选里挑最多 6 条，给一句 `why`；只保留候选里真有的 turn。
+  4. 任何一步失败都退回 `mode:"lexical"`（直接用原查询召回），照样给结果。结果缓存 5 分钟（最多 40 条）。
+- Client 半：`qRef` 丢弃过期响应（慢回来的旧结果不许覆盖新查询）；点结果滚到那一轮；
+  那一轮如果还没载入（长会话只渲染最近几轮），直说「第 N 轮还没载入」——不假装能跳。
+- 延迟预算：改写 0.8–1.2s + 召回 0.1s + 重排 1.2–2s ≈ 2.5s，所以必须"停顿才触发"，不能按键就发。
+- 没有 embedding：宿主 `llm` 服务只有 `stream()`，没有向量接口。要把召回换成向量检索，
+  只需要替换 `runSearch` 里的召回这一层（`searchEvents` → cosine top-k），其余不动。
 
 ## 已知行为（改之前先确认不是有意为之）
 
