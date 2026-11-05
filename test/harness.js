@@ -291,6 +291,15 @@ export async function createWorld(options = {}) {
     },
     getScroll() { return live.scope ? live.scrollTops.get(live.scope) || 0 : 0; },
     dispatchScroll() { doc.dispatchEvent(new win.Event("scroll")); },
+    // 在搜索框里打字并按回车（新的搜索只在回车时触发）
+    async enter(text) {
+      const input = doc.querySelector(".cln-q");
+      Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, "value").set.call(input, text);
+      await this.flush(() => input.dispatchEvent(new win.Event("input", { bubbles: true })));
+      await this.flush(() => input.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
+      await this.flush();
+      return input;
+    },
     async mount() {
       commonjs.apply(ctx);
       await act(async () => { root.render(slots.registered[0].factory()); });
